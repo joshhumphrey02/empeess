@@ -7,9 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-inter-tight);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-inter-tight);
+  --font-logo: var(--font-oswald);
+  --color-brand: var(--brand);
+  --color-canvas: var(--canvas);
+  --color-ink: var(--ink);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -81,6 +85,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Storefront palette */
+  --brand: oklch(0.7 0.2 45); /* signal orange */
+  --canvas: oklch(0.955 0 0); /* hero / testimonial grey */
+  --ink: oklch(0.18 0 0); /* footer + strip black */
 }
 
 .dark {
@@ -127,4 +136,44 @@
   html {
     @apply font-sans;
   }
+}
+
+/* Lenis smooth scroll (mirrors lenis/dist/lenis.css). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+@utility chamfer {
+  /* Cut top-left and bottom-right corners — the signature image frame. */
+  clip-path: polygon(
+    var(--cut, 18%) 0,
+    100% 0,
+    100% calc(100% - var(--cut, 18%)),
+    calc(100% - var(--cut, 18%)) 100%,
+    0 100%,
+    0 var(--cut, 18%)
+  );
+}
+
+@utility chamfer-tr {
+  /* Single cut on the top-right corner. */
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut, 18%)) 0,
+    100% var(--cut, 18%),
+    100% 100%,
+    0 100%
+  );
+}
+
+@utility text-outline {
+  -webkit-text-stroke: 1px currentColor;
+  color: transparent;
 }
