@@ -2,7 +2,24 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/*
+ * Dark mode: a `.dark` ancestor, or (admin only) the theme marker that the
+ * dashboard renders, read via :has() so portals (menus, dialogs, toasts) under
+ * <body> follow too. "system" defers to the OS.
+ */
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+  &:where(:root:has([data-admin-theme="dark"]) *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:has([data-admin-theme="system"]) *) {
+      @slot;
+    }
+  }
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -106,8 +123,9 @@
   --ink: oklch(0.17 0.025 265); /* footer + strip: blue-black */
 }
 
-/* Dark mode is used by the admin dashboard (see components/admin/admin-theme.tsx). */
-.dark {
+/* Dark tokens: used by the admin dashboard (see components/admin/admin-theme.tsx). */
+.dark,
+:root:has([data-admin-theme="dark"]) {
   --background: oklch(0.15 0.015 265);
   --foreground: oklch(0.97 0.005 265);
   --card: oklch(0.195 0.02 265);
@@ -144,6 +162,57 @@
 
   --brand: oklch(0.66 0.17 262);
   --brand-soft: oklch(0.3 0.08 265 / 60%);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Same tokens as above, for the dashboard's "System" setting. */
+  :root:has([data-admin-theme="system"]) {
+    --background: oklch(0.15 0.015 265);
+    --foreground: oklch(0.97 0.005 265);
+    --card: oklch(0.195 0.02 265);
+    --card-foreground: oklch(0.97 0.005 265);
+    --popover: oklch(0.21 0.02 265);
+    --popover-foreground: oklch(0.97 0.005 265);
+    /* White text on it is ~4.6:1. */
+    --primary: oklch(0.57 0.2 263);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.26 0.03 265);
+    --secondary-foreground: oklch(0.97 0.005 265);
+    --muted: oklch(0.25 0.02 265);
+    --muted-foreground: oklch(0.72 0.02 265);
+    --accent: oklch(0.57 0.2 263);
+    --accent-foreground: oklch(0.99 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.66 0.17 262);
+    /* --chart-1 validated vs the dark card surface. */
+    --chart-1: oklch(0.66 0.17 262);
+    --chart-2: oklch(0.56 0.16 263);
+    --chart-3: oklch(0.47 0.13 264);
+    --chart-4: oklch(0.38 0.09 265);
+    --chart-5: oklch(0.3 0.05 265);
+    --sidebar: oklch(0.17 0.018 265);
+    --sidebar-foreground: oklch(0.95 0.005 265);
+    --sidebar-primary: oklch(0.57 0.2 263);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.26 0.04 265);
+    --sidebar-accent-foreground: oklch(0.97 0.005 265);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.66 0.17 262);
+
+    --brand: oklch(0.66 0.17 262);
+    --brand-soft: oklch(0.3 0.08 265 / 60%);
+  }
+}
+
+:root:has([data-admin-theme="dark"]) {
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:has([data-admin-theme="system"]) {
+    color-scheme: dark;
+  }
 }
 
 /* Theme switch: the new theme grows out of the toggle as a circle. */

@@ -5,6 +5,8 @@ import {
   IconCategory,
   IconExternalLink,
   IconLayoutDashboard,
+  IconMailCheck,
+  IconMessage,
   IconPackages,
   IconReceipt,
   IconStar,
@@ -35,7 +37,7 @@ type NavItem = {
   label: string;
   icon: typeof IconBox;
   exact?: boolean;
-  badge?: "toFulfil" | "lowStock";
+  badge?: "toFulfil" | "lowStock" | "unread";
 };
 
 const groups: { label: string; items: NavItem[] }[] = [
@@ -56,9 +58,16 @@ const groups: { label: string; items: NavItem[] }[] = [
       { href: "/admin/reviews", label: "Reviews", icon: IconStar },
     ],
   },
+  {
+    label: "Engage",
+    items: [
+      { href: "/admin/messages", label: "Messages", icon: IconMessage, badge: "unread" },
+      { href: "/admin/subscribers", label: "Subscribers", icon: IconMailCheck },
+    ],
+  },
 ];
 
-export function AdminSidebar({ counts }: { counts: { toFulfil: number; lowStock: number } }) {
+export function AdminSidebar({ counts }: { counts: { toFulfil: number; lowStock: number; unread: number } }) {
   const pathname = usePathname();
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -107,7 +116,7 @@ export function AdminSidebar({ counts }: { counts: { toFulfil: number; lowStock:
                       {count > 0 && (
                         <SidebarMenuBadge
                           className={item.badge === "lowStock" ? "text-amber-700 dark:text-amber-400" : "text-brand"}
-                          aria-label={`${count} ${item.badge === "toFulfil" ? "paid orders to fulfil" : "low-stock variants"}`}
+                          aria-label={`${count} ${item.badge === "toFulfil" ? "paid orders to fulfil" : item.badge === "unread" ? "unread messages" : "low-stock variants"}`}
                         >
                           {count}
                         </SidebarMenuBadge>

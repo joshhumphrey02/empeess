@@ -37,6 +37,8 @@ const LABELS: Record<string, string> = {
   orders: "Orders",
   customers: "Customers",
   reviews: "Reviews",
+  messages: "Messages",
+  subscribers: "Subscribers",
   new: "New",
 };
 

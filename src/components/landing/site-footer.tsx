@@ -8,8 +8,10 @@ import {
   IconBrandYoutube,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useActionState, useRef } from "react";
 
+import { initialFormState } from "@/app/actions/form-state";
+import { subscribeNewsletter } from "@/app/actions/marketing";
 import { BrandMark } from "@/components/brand";
 import { Input } from "@/components/ui/input";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
@@ -26,37 +28,33 @@ const socials = [
 ];
 
 function NewsletterForm() {
-  const [note, setNote] = useState<string | null>(null);
+  const [state, action, pending] = useActionState(subscribeNewsletter, initialFormState);
   return (
-    <form
-      className="mt-10 max-w-sm"
-      onSubmit={(e) => {
-        e.preventDefault();
-        // Not wired to a mailing list yet; say so instead of pretending.
-        setNote("Newsletter sign-up is coming soon.");
-      }}
-    >
+    <form action={action} className="mt-10 max-w-sm">
       <label htmlFor="footer-email" className="sr-only">
         Email address
       </label>
       <div className="flex items-center gap-3 border-b border-dashed border-white/25 pb-3">
         <Input
           id="footer-email"
+          name="email"
           type="email"
           required
-          placeholder="Send email to us"
+          autoComplete="email"
+          placeholder="Join the newsletter"
           className="h-10 border-0 bg-transparent px-0 text-white placeholder:text-white/45 focus-visible:ring-0 dark:bg-transparent"
         />
         <button
           type="submit"
           aria-label="Subscribe"
-          className="group grid h-9 w-12 shrink-0 place-items-center rounded-full bg-white text-neutral-950 transition-transform hover:scale-105"
+          disabled={pending}
+          className="group grid h-9 w-12 shrink-0 place-items-center rounded-full bg-white text-neutral-950 transition-transform hover:scale-105 disabled:opacity-60"
         >
           <IconArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" stroke={1.75} />
         </button>
       </div>
-      <p aria-live="polite" className="mt-3 h-4 text-xs text-white/60">
-        {note}
+      <p aria-live="polite" className={state.error ? "mt-3 min-h-4 text-xs text-red-300" : "mt-3 min-h-4 text-xs text-white/60"}>
+        {state.error ?? state.message ?? "New drops and restocks, a few times a month. Unsubscribe any time."}
       </p>
     </form>
   );

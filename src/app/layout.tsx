@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter_Tight, Oswald } from "next/font/google";
 
-import { ADMIN_THEME_KEY } from "@/lib/admin-theme-key";
-
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -33,21 +31,12 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: "EMPEESS", description },
 };
 
-// Dark mode is an admin-only preference. Applying it before first paint avoids a
-// light flash on a full page load; AdminThemeProvider keeps it in sync after that.
-const ADMIN_THEME_SCRIPT = `try{var p=location.pathname;if(p==="/admin"||p.indexOf("/admin/")===0){var t=localStorage.getItem("${ADMIN_THEME_KEY}");var d=t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);if(d){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark"}}}catch(e){}`;
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
       className={`${interTight.variable} ${oswald.variable} ${geistMono.variable} h-full antialiased`}
-      // The admin theme script below may add `dark` before hydration.
-      suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: ADMIN_THEME_SCRIPT }} />
-      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

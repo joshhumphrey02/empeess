@@ -2,7 +2,7 @@
 
 import { IconDeviceDesktop, IconMoon, IconSun } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
-import { createContext, use, useLayoutEffect, useRef, useSyncExternalStore } from "react";
+import { createContext, use, useRef, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 
 import { Button } from "@/components/ui/button";
@@ -16,44 +16,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
-import { ADMIN_THEME_KEY } from "@/lib/admin-theme-key";
+import { ADMIN_THEME_COOKIE, type ThemePref } from "@/lib/admin-theme-key";
 
-export type ThemePref = "light" | "dark" | "system";
 type Resolved = "light" | "dark";
-
-// ─── Store: the preference lives in localStorage, the system value in a media query ──
-
-const listeners = new Set<() => void>();
-
-function readPref(): ThemePref {
-  try {
-    const v = localStorage.getItem(ADMIN_THEME_KEY);
-    return v === "light" || v === "dark" ? v : "system";
-  } catch {
-    return "system";
-  }
-}
-
-function subscribePref(cb: () => void) {
-  listeners.add(cb);
-  // Keep other tabs in step.
-  const onStorage = (e: StorageEvent) => e.key === ADMIN_THEME_KEY && cb();
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(cb);
-    window.removeEventListener("storage", onStorage);
-  };
-}
-
-function writePref(pref: ThemePref) {
-  try {
-    if (pref === "system") localStorage.removeItem(ADMIN_THEME_KEY);
-    else localStorage.setItem(ADMIN_THEME_KEY, pref);
-  } catch {
-    // Private mode: the choice still applies for this page view.
-  }
-  listeners.forEach((l) => l());
-}
 
 const darkQuery = () => window.matchMedia("(prefers-color-scheme: dark)");
 function subscribeSystem(cb: () => void) {
@@ -61,14 +26,6 @@ function subscribeSystem(cb: () => void) {
   mq.addEventListener("change", cb);
   return () => mq.removeEventListener("change", cb);
 }
-
-function applyTheme(theme: Resolved | null) {
-  const root = document.documentElement;
-  root.classList.toggle("dark", theme === "dark");
-  root.style.colorScheme = theme ?? "";
-}
-
-// ─── Provider ────────────────────────────────────────────────────────────────
 
 const ThemeContext = createContext<{ pref: ThemePref; resolved: Resolved; setPref: (p: ThemePref, from?: HTMLElement) => void } | null>(null);
 
@@ -79,24 +36,28 @@ export function useAdminTheme() {
 }
 
 /**
- * Light/dark/system theme scoped to the dashboard: it sets `dark` on <html>
- * while the admin is mounted and removes it on the way out, so the store
- * always renders light. The root layout's inline script handles first paint.
+ * Light/dark/system theme for the dashboard only. The choice lives in a
+ * cookie, so the server renders the right theme on the first byte (no script,
+ * no flash). The theme is applied through the marker element below: CSS reads
+ * it with :root:has([data-admin-theme]), so leaving the dashboard (which
+ * unmounts the marker) puts the store back to light automatically.
  */
-export function AdminThemeProvider({ children }: { children: React.ReactNode }) {
-  const pref = useSyncExternalStore(subscribePref, readPref, () => "system" as const);
+export function AdminThemeProvider({ initial, children }: { initial: ThemePref; children: React.ReactNode }) {
+  const [pref, setPrefState] = useState<ThemePref>(initial);
   const systemDark = useSyncExternalStore(subscribeSystem, () => darkQuery().matches, () => false);
   const resolved: Resolved = pref === "system" ? (systemDark ? "dark" : "light") : pref;
 
-  useLayoutEffect(() => applyTheme(resolved), [resolved]);
-  useLayoutEffect(() => () => applyTheme(null), []);
+  function write(next: ThemePref) {
+    document.cookie = `${ADMIN_THEME_COOKIE}=${next}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    setPrefState(next);
+  }
 
   function setPref(next: ThemePref, from?: HTMLElement) {
     const nextResolved: Resolved = next === "system" ? (darkQuery().matches ? "dark" : "light") : next;
     const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } };
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!doc.startViewTransition || reduce || nextResolved === resolved) {
-      writePref(next);
+      write(next);
       return;
     }
     // Grow the new theme out of the toggle as a circle.
@@ -104,10 +65,7 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth - 40;
     const y = rect ? rect.top + rect.height / 2 : 28;
     const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-    const transition = doc.startViewTransition(() => {
-      flushSync(() => writePref(next));
-      applyTheme(nextResolved);
-    });
+    const transition = doc.startViewTransition(() => flushSync(() => write(next)));
     transition.ready.then(() => {
       document.documentElement.animate(
         { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
@@ -116,7 +74,12 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
     });
   }
 
-  return <ThemeContext value={{ pref, resolved, setPref }}>{children}</ThemeContext>;
+  return (
+    <ThemeContext value={{ pref, resolved, setPref }}>
+      <span hidden data-admin-theme={pref} />
+      {children}
+    </ThemeContext>
+  );
 }
 
 // ─── Controls ────────────────────────────────────────────────────────────────

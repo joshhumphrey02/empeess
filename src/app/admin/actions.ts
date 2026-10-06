@@ -2,9 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { assertAdmin } from "@/server/admin/guard";
 import {
-  AdminInputError,
   deleteCategory,
   deleteReview,
   moveCategory,
@@ -20,30 +18,13 @@ import {
   type ProductInput,
   type ProductStatus,
 } from "@/server/admin/products";
+import { runAdminAction } from "@/server/admin/run-action";
 import { setCustomerRole, updateOrderStatus, type OrderStatus } from "@/server/admin/sales";
-import { PaymentError, refundOrder } from "@/server/payments";
+import { refundOrder } from "@/server/payments";
 
-export type ActionResult<T = undefined> = { ok: true; data?: T; message?: string } | { ok: false; error: string };
+export type { ActionResult } from "@/server/admin/run-action";
 
-/** Admin check + known-error → message mapping, shared by every action. */
-async function run<T>(fn: (adminId: string) => Promise<T>, message?: string): Promise<ActionResult<T>> {
-  let adminId: string;
-  try {
-    adminId = (await assertAdmin()).id;
-  } catch {
-    return { ok: false, error: "Your session has expired or you're not an admin. Sign in again." };
-  }
-  try {
-    const data = await fn(adminId);
-    return { ok: true, data, message };
-  } catch (error) {
-    if (error instanceof ProductInputError || error instanceof AdminInputError || error instanceof PaymentError) {
-      return { ok: false, error: error.message };
-    }
-    console.error(error);
-    return { ok: false, error: "Something went wrong. Please try again." };
-  }
-}
+const run = runAdminAction;
 
 // Storefront pages read the catalog too, so refresh everything that shows it.
 const refreshCatalog = () => revalidatePath("/", "layout");
