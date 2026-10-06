@@ -4,10 +4,22 @@ import Link from "next/link";
 import { formatMoney } from "@/lib/format";
 import type { ProductCardData } from "@/server/catalog";
 
+import { WishlistButton } from "./wishlist";
+
+/** Product tile. The wishlist heart sits beside the link, not inside it (no button within an anchor). */
 export function ProductCard({ product, preload = false }: { product: ProductCardData; preload?: boolean }) {
   const onSale = product.compareAtPrice !== null && product.compareAtPrice > product.price;
   return (
-    <Link href={`/product/${product.slug}`} className="group block">
+    <div className="group relative">
+      <WishlistButton productId={product.id} name={product.name} className="absolute right-3 top-3 z-10" />
+      <ProductCardLink product={product} preload={preload} onSale={onSale} />
+    </div>
+  );
+}
+
+function ProductCardLink({ product, preload, onSale }: { product: ProductCardData; preload: boolean; onSale: boolean }) {
+  return (
+    <Link href={`/product/${product.slug}`} className="block">
       <div
         className="chamfer relative aspect-3/4 overflow-hidden bg-neutral-100"
         style={{ ["--cut" as string]: "12%" }}

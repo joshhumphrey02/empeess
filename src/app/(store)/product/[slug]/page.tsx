@@ -7,6 +7,7 @@ import { AddToCart } from "@/components/store/add-to-cart";
 import { ProductGrid } from "@/components/store/product-card";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { ReviewForm } from "@/components/store/review-form";
+import { WishlistButton } from "@/components/store/wishlist";
 import { formatDate, formatMoney } from "@/lib/format";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/store-config";
 import { getCurrentUser } from "@/server/auth/session";
@@ -78,6 +79,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
 
           <div className="mt-8">
             <AddToCart
+              wishlist={<WishlistButton productId={product.id} name={product.name} variant="pill" />}
               product={{ name: product.name, image: product.images[0]?.url ?? null }}
               variants={product.variants}
               basePrice={product.basePrice}

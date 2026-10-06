@@ -109,6 +109,14 @@ export async function listProducts(query: ProductQuery) {
   };
 }
 
+/** Cards for specific products (active only), in the order of `ids`. */
+export async function productCardsByIds(ids: string[]) {
+  if (ids.length === 0) return [];
+  const rows = await withCardRelations(filtered({}).where((p) => p.id.in(ids))).all();
+  const byId = new Map(rows.map((r) => [r.id, toCard(r)]));
+  return ids.flatMap((id) => byId.get(id) ?? []);
+}
+
 type CardRow = {
   id: string;
   slug: string;

@@ -32,12 +32,15 @@ type DimKey = (typeof DIMENSIONS)[number]["key"];
 const display = (key: DimKey, value: string | number) => (key === "volumeMl" ? `${value}ml` : String(value));
 
 export function AddToCart({
+  wishlist,
   product,
   variants,
   basePrice,
   compareAtPrice,
   currency,
 }: {
+  /** Rendered beside the add button (the wishlist heart). */
+  wishlist?: React.ReactNode;
   product: { name: string; image: string | null };
   variants: Variant[];
   basePrice: number;
@@ -166,6 +169,7 @@ export function AddToCart({
         <SubmitButton disabled={soldOut} className="flex-1">
           {soldOut ? "Sold out" : "Add to cart"}
         </SubmitButton>
+        {wishlist}
       </div>
 
     </form>

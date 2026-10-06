@@ -2,6 +2,7 @@
 
 import {
   IconArrowLeft,
+  IconHeart,
   IconHome,
   IconLayoutDashboard,
   IconLogout,
@@ -32,6 +33,7 @@ import {
 const links = [
   { href: "/account", label: "Overview", icon: IconHome, exact: true },
   { href: "/account/orders", label: "Orders", icon: IconReceipt },
+  { href: "/account/wishlist", label: "Wishlist", icon: IconHeart },
   { href: "/account/addresses", label: "Addresses", icon: IconMapPin },
   { href: "/account/settings", label: "Settings", icon: IconSettings },
 ];
@@ -39,9 +41,11 @@ const links = [
 export function AccountSidebar({
   user,
   activeOrders,
+  savedCount,
 }: {
   user: { name: string | null; email: string; avatarUrl: string | null; isAdmin: boolean };
   activeOrders: number;
+  savedCount: number;
 }) {
   const pathname = usePathname();
   const initials = (user.name ?? user.email).split(/[\s@]/).map((s) => s[0]?.toUpperCase()).slice(0, 2).join("");
@@ -76,6 +80,11 @@ export function AccountSidebar({
                       <l.icon />
                       <span>{l.label}</span>
                     </SidebarMenuButton>
+                    {l.href === "/account/wishlist" && savedCount > 0 && (
+                      <SidebarMenuBadge aria-label={`${savedCount} saved`} className="text-muted-foreground">
+                        {savedCount}
+                      </SidebarMenuBadge>
+                    )}
                     {l.href === "/account/orders" && activeOrders > 0 && (
                       <SidebarMenuBadge aria-label={`${activeOrders} orders in progress`} className="text-brand">
                         {activeOrders}
