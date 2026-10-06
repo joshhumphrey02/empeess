@@ -27,6 +27,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
+import { ThemeToggle } from "./admin-theme";
+
 const LABELS: Record<string, string> = {
   admin: "Dashboard",
   products: "Products",
@@ -68,11 +70,12 @@ export function AdminHeader({ user }: { user: { name: string | null; email: stri
         </BreadcrumbList>
       </Breadcrumb>
 
+      <ThemeToggle />
       <DropdownMenu>
         <DropdownMenuTrigger className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50" aria-label="Account menu">
           <Avatar className="size-8">
             {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt="" />}
-            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-brand-soft text-xs font-medium text-brand">{initials}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
