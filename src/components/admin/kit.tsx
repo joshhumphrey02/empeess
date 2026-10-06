@@ -1,9 +1,14 @@
 // Small building blocks shared by admin pages (server-renderable).
-import { IconChevronLeft, IconChevronRight, IconSearch } from "@tabler/icons-react";
+import { IconArrowsSort, IconChevronLeft, IconChevronRight, IconSearch, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { TableHead } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+
+import { FilterPills } from "./kit-client";
+
+export { StatCards, type StatItem } from "./kit-client";
 
 export function PageHeader({
   title,
@@ -15,9 +20,11 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4 animate-in fade-in-0 slide-in-from-bottom-1 duration-500">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="bg-linear-to-br from-foreground to-foreground/60 bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-3xl">
+          {title}
+        </h1>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -53,7 +60,7 @@ export function SearchBox({
   );
 }
 
-/** Pill-style filter links (e.g. order status). */
+/** Pill-style filter links (e.g. order status); the active pill slides between options. */
 export function FilterTabs({
   options,
   active,
@@ -63,24 +70,57 @@ export function FilterTabs({
   active: string;
   hrefFor: (value: string) => string;
 }) {
+  return <FilterPills active={active} options={options.map((o) => ({ ...o, href: hrefFor(o.value) }))} />;
+}
+
+/**
+ * Sortable column header. `sort` is the current key ("name" ascending,
+ * "-name" descending); clicking cycles to the other direction.
+ */
+export function SortHeader({
+  label,
+  field,
+  sort,
+  defaultSort,
+  hrefFor,
+  className,
+}: {
+  label: string;
+  field: string;
+  sort: string | undefined;
+  /** The list's implicit order when `sort` is empty. */
+  defaultSort: string;
+  hrefFor: (sort: string) => string;
+  className?: string;
+}) {
+  const current = sort || defaultSort;
+  const active = current.replace(/^-/, "") === field;
+  const desc = current.startsWith("-");
+  const next = active && !desc ? `-${field}` : field;
+  const Icon = !active ? IconArrowsSort : desc ? IconSortDescending : IconSortAscending;
   return (
-    <nav aria-label="Filter" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
-      {options.map((o) => (
-        <Link
-          key={o.value}
-          href={hrefFor(o.value)}
-          aria-current={o.value === active ? "page" : undefined}
-          className={cn(
-            "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm transition-colors",
-            o.value === active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-          )}
-        >
-          {o.label}
-          {o.count !== undefined && <span className="text-xs opacity-70">{o.count}</span>}
-        </Link>
-      ))}
-    </nav>
+    <TableHead aria-sort={active ? (desc ? "descending" : "ascending") : undefined} className={className}>
+      <Link
+        href={hrefFor(next === defaultSort ? "" : next)}
+        className={cn(
+          "group/sort inline-flex items-center gap-1 rounded-md transition-colors hover:text-foreground",
+          active && "text-foreground",
+          className?.includes("text-right") && "flex-row-reverse",
+        )}
+      >
+        {label}
+        <Icon className={cn("size-3.5 transition-opacity", active ? "text-brand" : "opacity-0 group-hover/sort:opacity-60")} aria-hidden />
+      </Link>
+    </TableHead>
   );
+}
+
+/** Staggered fade-in for table rows and list items (first 16 animate, the rest appear at once). */
+export function rowEnter(i: number) {
+  return {
+    className: "animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both duration-500",
+    style: { animationDelay: `${Math.min(i, 16) * 30}ms` },
+  };
 }
 
 export function AdminPagination({
@@ -136,7 +176,7 @@ export function withQuery(path: string, params: Record<string, string | number |
 
 const ORDER_TONE: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
-  PAID: "bg-sky-100 text-sky-900 dark:bg-sky-500/15 dark:text-sky-300",
+  PAID: "bg-brand-soft text-brand",
   PROCESSING: "bg-sky-100 text-sky-900 dark:bg-sky-500/15 dark:text-sky-300",
   SHIPPED: "bg-indigo-100 text-indigo-900 dark:bg-indigo-500/15 dark:text-indigo-300",
   DELIVERED: "bg-emerald-100 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-300",
@@ -145,14 +185,15 @@ const ORDER_TONE: Record<string, string> = {
   ACTIVE: "bg-emerald-100 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-300",
   DRAFT: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
   ARCHIVED: "bg-muted text-muted-foreground",
-  ADMIN: "bg-primary text-primary-foreground",
+  ADMIN: "bg-brand-soft text-brand",
   CUSTOMER: "bg-muted text-muted-foreground",
 };
 
 /** Status pill — always shows the word, never colour alone. */
 export function StatusPill({ status }: { status: string }) {
   return (
-    <Badge variant="secondary" className={cn("border-0 capitalize", ORDER_TONE[status])}>
+    <Badge variant="secondary" className={cn("gap-1.5 border-0 capitalize", ORDER_TONE[status])}>
+      <span aria-hidden className={cn("size-1.5 rounded-full bg-current", status === "PENDING" && "animate-pulse")} />
       {status.toLowerCase()}
     </Badge>
   );
@@ -160,9 +201,16 @@ export function StatusPill({ status }: { status: string }) {
 
 export function EmptyState({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
-      <p className="font-medium">{title}</p>
-      {children && <div className="text-sm text-muted-foreground">{children}</div>}
+    <div className="relative flex flex-col items-center justify-center gap-2 overflow-hidden px-6 py-16 text-center">
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(var(--border)_1px,transparent_1px)] mask-[radial-gradient(ellipse_at_center,black,transparent_70%)] bg-size-[16px_16px]"
+      />
+      <span aria-hidden className="relative mb-1 grid size-12 place-items-center rounded-2xl bg-brand-soft ring-8 ring-brand-soft/40">
+        <span className="size-2.5 animate-pulse rounded-full bg-brand" />
+      </span>
+      <p className="relative font-medium">{title}</p>
+      {children && <div className="relative text-sm text-muted-foreground">{children}</div>}
     </div>
   );
 }

@@ -1,21 +1,22 @@
 "use client";
 
-import { IconArrowDown, IconArrowUp, IconEdit, IconLoader2, IconPlus, IconTrash, IconX } from "@tabler/icons-react";
+import { IconArrowLeft, IconArrowRight, IconEdit, IconExternalLink, IconLoader2, IconPlus, IconTrash, IconX } from "@tabler/icons-react";
+import { motion } from "motion/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 import { deleteCategoryAction, moveCategoryAction, saveCategoryAction } from "@/app/admin/actions";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 import { ConfirmAction } from "./confirm-button";
-import { StatusPill } from "./kit";
 import { useAdminAction } from "./use-admin-action";
 import { discardUpload, useImageUpload } from "./use-image-upload";
 
@@ -158,71 +159,94 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
           <IconPlus /> New category
         </Button>
       </div>
-      <div className="overflow-hidden rounded-xl border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-20 pl-4">Order</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Products</TableHead>
-              <TableHead>Visibility</TableHead>
-              <TableHead className="w-28 pr-4 text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {categories.map((c, i) => (
-              <TableRow key={c.id}>
-                <TableCell className="pl-4">
-                  <div className="flex gap-0.5">
-                    <Button size="icon-xs" variant="ghost" disabled={i === 0 || pending} onClick={() => run(() => moveCategoryAction(c.id, "up"))} aria-label={`Move ${c.name} up`}>
-                      <IconArrowUp />
+      {/* Cards glide to their new place when reordered (motion layout animation). */}
+      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {categories.map((c, i) => (
+          <motion.li
+            key={c.id}
+            layout
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ layout: { type: "spring", stiffness: 300, damping: 30 }, delay: i * 0.06 }}
+            className="group relative overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10 transition-shadow hover:shadow-[0_12px_40px_-16px_color-mix(in_oklch,var(--brand)_45%,transparent)]"
+          >
+            <div className="relative aspect-4/3 overflow-hidden bg-muted">
+              {c.imageUrl && (
+                <Image
+                  src={c.imageUrl}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  loading={i < 4 ? "eager" : undefined}
+                  className={cn("object-cover transition-transform duration-700 group-hover:scale-105", !c.isActive && "grayscale")}
+                />
+              )}
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" aria-hidden />
+              <span className="absolute left-3 top-3 grid size-7 place-items-center rounded-full bg-black/50 text-xs font-semibold text-white backdrop-blur">
+                {i + 1}
+              </span>
+              <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
+                <span aria-hidden className={cn("size-1.5 rounded-full", c.isActive ? "bg-emerald-400" : "bg-white/50")} />
+                {c.isActive ? "Visible" : "Hidden"}
+              </span>
+              <div className="absolute inset-x-3 bottom-3 text-white">
+                <p className="text-lg font-semibold">{c.name}</p>
+                <p className="text-xs text-white/75">
+                  {c.productCount} product{c.productCount === 1 ? "" : "s"} · /shop/{c.slug}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-1 p-2">
+              <div className="flex gap-0.5">
+                <Button size="icon-sm" variant="ghost" disabled={i === 0 || pending} onClick={() => run(() => moveCategoryAction(c.id, "up"))} aria-label={`Move ${c.name} earlier`}>
+                  <IconArrowLeft />
+                </Button>
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  disabled={i === categories.length - 1 || pending}
+                  onClick={() => run(() => moveCategoryAction(c.id, "down"))}
+                  aria-label={`Move ${c.name} later`}
+                >
+                  <IconArrowRight />
+                </Button>
+              </div>
+              <div className="flex gap-0.5">
+                <Link href={`/shop/${c.slug}`} target="_blank" className={buttonVariants({ size: "icon-sm", variant: "ghost" })} aria-label={`View ${c.name} in the store`}>
+                  <IconExternalLink />
+                </Link>
+                <Button size="icon-sm" variant="ghost" onClick={() => openDialog(c)} aria-label={`Edit ${c.name}`}>
+                  <IconEdit />
+                </Button>
+                <ConfirmAction
+                  title={`Delete ${c.name}?`}
+                  description={
+                    c.productCount > 0
+                      ? `It still has ${c.productCount} product${c.productCount === 1 ? "" : "s"}. Move them to another category first.`
+                      : "This can't be undone."
+                  }
+                  action={() => deleteCategoryAction(c.id)}
+                  trigger={(open) => (
+                    <Button size="icon-sm" variant="ghost" onClick={open} aria-label={`Delete ${c.name}`} className="hover:text-destructive">
+                      <IconTrash />
                     </Button>
-                    <Button size="icon-xs" variant="ghost" disabled={i === categories.length - 1 || pending} onClick={() => run(() => moveCategoryAction(c.id, "down"))} aria-label={`Move ${c.name} down`}>
-                      <IconArrowDown />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                      {c.imageUrl && <Image src={c.imageUrl} alt="" fill sizes="40px" className="object-cover" />}
-                    </div>
-                    <div>
-                      <p className="font-medium">{c.name}</p>
-                      <p className="text-xs text-muted-foreground">/shop/{c.slug}</p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="tabular-nums">{c.productCount}</TableCell>
-                <TableCell>
-                  <StatusPill status={c.isActive ? "ACTIVE" : "ARCHIVED"} />
-                </TableCell>
-                <TableCell className="pr-4">
-                  <div className="flex justify-end gap-1">
-                    <Button size="icon-sm" variant="ghost" onClick={() => openDialog(c)} aria-label={`Edit ${c.name}`}>
-                      <IconEdit />
-                    </Button>
-                    <ConfirmAction
-                      title={`Delete ${c.name}?`}
-                      description={
-                        c.productCount > 0
-                          ? `It still has ${c.productCount} product${c.productCount === 1 ? "" : "s"}. Move them to another category first.`
-                          : "This can't be undone."
-                      }
-                      action={() => deleteCategoryAction(c.id)}
-                      trigger={(open) => (
-                        <Button size="icon-sm" variant="ghost" onClick={open} aria-label={`Delete ${c.name}`}>
-                          <IconTrash />
-                        </Button>
-                      )}
-                    />
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+                  )}
+                />
+              </div>
+            </div>
+          </motion.li>
+        ))}
+        <li>
+          <button
+            type="button"
+            onClick={() => openDialog(null)}
+            className="flex size-full min-h-48 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed text-sm text-muted-foreground transition-colors hover:border-brand hover:bg-brand-soft/40 hover:text-brand"
+          >
+            <IconPlus className="size-6" />
+            Add a category
+          </button>
+        </li>
+      </ul>
       <CategoryDialog key={formKey} category={editing} open={open} onOpenChange={setOpen} />
     </>
   );

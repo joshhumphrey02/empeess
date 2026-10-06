@@ -10,6 +10,7 @@ import {
   IconStar,
   IconUsers,
 } from "@tabler/icons-react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -86,13 +87,26 @@ export function AdminSidebar({ counts }: { counts: { pending: number; lowStock: 
                   const count = item.badge ? counts[item.badge] : 0;
                   return (
                     <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton isActive={active} tooltip={item.label} render={<Link href={item.href} />}>
-                        <item.icon />
+                      <SidebarMenuButton
+                        isActive={active}
+                        tooltip={item.label}
+                        render={<Link href={item.href} />}
+                        className="relative isolate data-active:bg-transparent data-active:text-sidebar-accent-foreground"
+                      >
+                        {active && (
+                          // One indicator that glides between items as you navigate.
+                          <motion.span
+                            layoutId="admin-nav-active"
+                            className="absolute inset-0 -z-10 rounded-md bg-sidebar-accent shadow-[inset_2px_0_0_var(--brand)]"
+                            transition={{ type: "spring", stiffness: 420, damping: 36 }}
+                          />
+                        )}
+                        <item.icon className={active ? "text-brand" : undefined} />
                         <span>{item.label}</span>
                       </SidebarMenuButton>
                       {count > 0 && (
                         <SidebarMenuBadge
-                          className={item.badge === "lowStock" ? "text-amber-700" : "text-brand"}
+                          className={item.badge === "lowStock" ? "text-amber-700 dark:text-amber-400" : "text-brand"}
                           aria-label={`${count} ${item.badge === "pending" ? "pending orders" : "low-stock variants"}`}
                         >
                           {count}

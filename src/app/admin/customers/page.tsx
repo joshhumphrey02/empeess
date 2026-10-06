@@ -1,12 +1,13 @@
+import { IconShieldStar, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 
-import { AdminPagination, EmptyState, FilterTabs, PageHeader, SearchBox, StatusPill, withQuery } from "@/components/admin/kit";
+import { AdminPagination, EmptyState, PageHeader, rowEnter, SearchBox, SortHeader, StatCards, StatusPill, withQuery } from "@/components/admin/kit";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate, formatMoney } from "@/lib/format";
 import { requireAdmin } from "@/server/admin/guard";
-import { adminListCustomers } from "@/server/admin/sales";
+import { adminListCustomers, customerSummary } from "@/server/admin/sales";
 
 export const metadata = { title: "Customers" };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
@@ -17,23 +18,25 @@ export default async function CustomersPage({ searchParams }: PageProps<"/admin/
   const q = one(sp.q);
   const role = one(sp.role);
   const page = Number(one(sp.page)) || 1;
-  const result = await adminListCustomers({ q, role, page });
-  const href = (patch: Record<string, string | number | undefined>) => withQuery("/admin/customers", { q, role, ...patch });
+  const sort = one(sp.sort);
+  const [result, summary] = await Promise.all([adminListCustomers({ q, role, page, sort }), customerSummary()]);
+  const href = (patch: Record<string, string | number | undefined>) => withQuery("/admin/customers", { q, role, sort, ...patch });
+  const sortHref = (next: string) => href({ sort: next || undefined, page: undefined });
 
   return (
     <>
-      <PageHeader title="Customers" description="Everyone with an account." />
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <FilterTabs
-          active={role ?? "all"}
-          hrefFor={(v) => href({ role: v === "all" ? undefined : v, page: undefined })}
-          options={[
-            { value: "all", label: "All" },
-            { value: "CUSTOMER", label: "Customers" },
-            { value: "ADMIN", label: "Admins" },
-          ]}
-        />
-        <SearchBox action="/admin/customers" placeholder="Name or email" q={q} keep={{ role }} />
+      <PageHeader title="Customers" description="Everyone with an account. Click a row for their orders and addresses." />
+      <StatCards
+        className="lg:grid-cols-4"
+        items={[
+          { key: "all", label: "Everyone", value: summary.customers + summary.admins, icon: <IconUsers />, href: href({ role: undefined, page: undefined }), active: !role },
+          { key: "CUSTOMER", label: "Customers", value: summary.customers, icon: <IconUsers />, tone: "success", href: href({ role: "CUSTOMER", page: undefined }), active: role === "CUSTOMER" },
+          { key: "ADMIN", label: "Admins", value: summary.admins, icon: <IconShieldStar />, hint: "Can open this dashboard", href: href({ role: "ADMIN", page: undefined }), active: role === "ADMIN" },
+          { key: "new", label: "New this month", value: summary.newThisMonth, icon: <IconUserPlus />, tone: "warning", hint: "Signed up in 30 days" },
+        ]}
+      />
+      <div className="mb-4 flex justify-end">
+        <SearchBox action="/admin/customers" placeholder="Name or email" q={q} keep={{ role, sort }} />
       </div>
       <Card className="gap-0 overflow-hidden py-0">
         {result.users.length === 0 ? (
@@ -42,25 +45,25 @@ export default async function CustomersPage({ searchParams }: PageProps<"/admin/
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="pl-4">Customer</TableHead>
+                <SortHeader label="Customer" field="name" sort={sort} defaultSort="-joined" hrefFor={sortHref} className="pl-4" />
                 <TableHead>Role</TableHead>
                 <TableHead className="hidden md:table-cell">Sign-in</TableHead>
                 <TableHead className="text-right">Orders</TableHead>
                 <TableHead className="text-right">Spent</TableHead>
-                <TableHead className="hidden pr-4 lg:table-cell">Joined</TableHead>
+                <SortHeader label="Joined" field="joined" sort={sort} defaultSort="-joined" hrefFor={sortHref} className="hidden pr-4 lg:table-cell" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {result.users.map((u) => (
-                <TableRow key={u.id} className="relative">
+              {result.users.map((u, i) => (
+                <TableRow key={u.id} className={`relative ${rowEnter(i).className}`} style={rowEnter(i).style}>
                   <TableCell className="pl-4">
                     <div className="flex items-center gap-3">
                       <Avatar className="size-8">
                         {u.avatarUrl && <AvatarImage src={u.avatarUrl} alt="" />}
-                        <AvatarFallback className="text-xs">{(u.name ?? u.email).slice(0, 2).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback className="bg-brand-soft text-xs font-medium text-brand">{(u.name ?? u.email).slice(0, 2).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <Link href={`/admin/customers/${u.id}`} className="block truncate font-medium after:absolute after:inset-0 hover:underline">
+                        <Link href={`/admin/customers/${u.id}`} className="block truncate font-medium after:absolute after:inset-0 hover:text-brand">
                           {u.name ?? "—"}
                         </Link>
                         <span className="block truncate text-xs text-muted-foreground">{u.email}</span>

@@ -88,6 +88,16 @@ export async function moveCategory(id: string, direction: "up" | "down") {
 
 // ─── Inventory ───────────────────────────────────────────────────────────────
 
+/** Headline numbers for the inventory page. */
+export async function inventorySummary() {
+  const [all, low, out] = await Promise.all([
+    db.orm.public.ProductVariant.aggregate((a) => ({ count: a.count(), units: a.sum("stock") })),
+    db.orm.public.ProductVariant.where((v) => and(v.stock.gt(0), v.stock.lte(5))).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.ProductVariant.where((v) => v.stock.eq(0)).aggregate((a) => ({ count: a.count() })),
+  ]);
+  return { variants: all.count, units: all.units ?? 0, low: low.count, out: out.count };
+}
+
 export async function adminListInventory(opts: { q?: string; filter?: string }) {
   let variants = db.orm.public.ProductVariant.where((v) => v.id.isNotNull());
   if (opts.q) {
@@ -109,6 +119,15 @@ export async function setStock(variantId: string, stock: number) {
 }
 
 // ─── Reviews ─────────────────────────────────────────────────────────────────
+
+/** Review count per star rating, 5★ first. */
+export async function reviewSummary() {
+  const rows = await db.orm.public.Review.groupBy("rating").aggregate((a) => ({ count: a.count() }));
+  const counts = [5, 4, 3, 2, 1].map((rating) => ({ rating, count: rows.find((r) => r.rating === rating)?.count ?? 0 }));
+  const total = counts.reduce((n, c) => n + c.count, 0);
+  const average = total ? counts.reduce((n, c) => n + c.rating * c.count, 0) / total : 0;
+  return { counts, total, average };
+}
 
 export async function adminListReviews(opts: { rating?: number; page?: number }) {
   const page = Math.max(1, opts.page ?? 1);

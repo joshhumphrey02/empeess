@@ -17,11 +17,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import { deleteProductAction, saveProductAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -227,7 +228,7 @@ export function ProductForm({
     >
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="grid min-w-0 gap-4">
-          <Card>
+          <SpotlightCard>
             <CardHeader>
               <CardTitle>Details</CardTitle>
             </CardHeader>
@@ -256,9 +257,9 @@ export function ProductForm({
                 <Textarea id="p-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} maxLength={4000} placeholder="Fabric, fit, notes…" />
               </div>
             </CardContent>
-          </Card>
+          </SpotlightCard>
 
-          <Card>
+          <SpotlightCard>
             <CardHeader>
               <CardTitle>Media</CardTitle>
               <CardDescription>Stored on Ark. The first image is the cover; drag order with the arrows.</CardDescription>
@@ -313,9 +314,9 @@ export function ProductForm({
                 hint="JPG, PNG, WebP, AVIF or GIF · up to 10 MB each"
               />
             </CardContent>
-          </Card>
+          </SpotlightCard>
 
-          <Card>
+          <SpotlightCard>
             <CardHeader>
               <CardTitle>Pricing</CardTitle>
             </CardHeader>
@@ -334,9 +335,9 @@ export function ProductForm({
                 </p>
               )}
             </CardContent>
-          </Card>
+          </SpotlightCard>
 
-          <Card>
+          <SpotlightCard>
             <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2">
               <div>
                 <CardTitle>Variants</CardTitle>
@@ -400,11 +401,11 @@ export function ProductForm({
                 <IconPlus /> Add variant
               </Button>
             </CardContent>
-          </Card>
+          </SpotlightCard>
         </div>
 
         <div className="grid h-fit gap-4 lg:sticky lg:top-20">
-          <Card>
+          <SpotlightCard>
             <CardHeader>
               <CardTitle>Organisation</CardTitle>
             </CardHeader>
@@ -447,10 +448,10 @@ export function ProductForm({
                 <Switch checked={isFeatured} onCheckedChange={(c) => { setFeatured(c); touch(); }} />
               </label>
             </CardContent>
-          </Card>
+          </SpotlightCard>
 
           {product && (
-            <Card size="sm">
+            <SpotlightCard size="sm">
               <CardContent className="grid gap-2 text-sm">
                 <Link href={`/product/${product.slug}`} target="_blank" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
                   <IconExternalLink className="size-4" /> View in store
@@ -467,7 +468,7 @@ export function ProductForm({
                   )}
                 />
               </CardContent>
-            </Card>
+            </SpotlightCard>
           )}
         </div>
       </div>

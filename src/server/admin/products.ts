@@ -12,12 +12,18 @@ export type ProductStatus = (typeof STATUSES)[number];
 
 const likeTerm = (q: string) => `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 
+/** Sort keys for the products table; a leading "-" means descending. */
+export const PRODUCT_SORTS = ["name", "price", "updated"] as const;
+
 export async function adminListProducts(opts: {
   q?: string;
   status?: string;
   categoryId?: string;
   page?: number;
+  sort?: string;
 }) {
+  const desc = opts.sort?.startsWith("-") ?? true;
+  const key = opts.sort?.replace(/^-/, "") ?? "updated";
   const page = Math.max(1, opts.page ?? 1);
   const filtered = () => {
     let products = db.orm.public.Product.where((p) => p.id.isNotNull());
@@ -40,7 +46,13 @@ export async function adminListProducts(opts: {
 
   const [rows, { count }] = await Promise.all([
     filtered()
-      .orderBy([(p) => p.updatedAt.desc(), (p) => p.id.desc()])
+      .orderBy([
+        (p) => {
+          const col = key === "name" ? p.name : key === "price" ? p.basePrice : p.updatedAt;
+          return desc ? col.desc() : col.asc();
+        },
+        (p) => p.id.desc(),
+      ])
       .include("category", (c) => c.select("name"))
       .include("images", (i) => i.select("url", "thumbnailUrl").orderBy((x) => x.position.asc()).limit(1))
       .include("variants", (v) =>

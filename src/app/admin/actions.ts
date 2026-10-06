@@ -69,6 +69,25 @@ export async function setProductStatusAction(id: string, status: ProductStatus) 
   }, `Product ${status === "ACTIVE" ? "published" : status === "ARCHIVED" ? "archived" : "moved to drafts"}.`);
 }
 
+/** Bulk versions for the products table selection. Each product goes through the same single-row path. */
+const MAX_BULK = 100;
+
+export async function bulkSetProductStatusAction(ids: string[], status: ProductStatus) {
+  return run(async () => {
+    if (ids.length > MAX_BULK) throw new ProductInputError(`Select ${MAX_BULK} products or fewer.`);
+    for (const id of ids) await setProductStatus(id, status);
+    refreshCatalog();
+  }, `${ids.length} product${ids.length === 1 ? "" : "s"} ${status === "ACTIVE" ? "published" : status === "ARCHIVED" ? "archived" : "moved to drafts"}.`);
+}
+
+export async function bulkDeleteProductsAction(ids: string[]) {
+  return run(async () => {
+    if (ids.length > MAX_BULK) throw new ProductInputError(`Select ${MAX_BULK} products or fewer.`);
+    for (const id of ids) await deleteProduct(id);
+    refreshCatalog();
+  }, `${ids.length} product${ids.length === 1 ? "" : "s"} deleted.`);
+}
+
 // ─── Categories ──────────────────────────────────────────────────────────────
 
 export async function saveCategoryAction(input: CategoryInput) {

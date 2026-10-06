@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { EmptyState, PageHeader, StatusPill } from "@/components/admin/kit";
+import { EmptyState, PageHeader, rowEnter, StatusPill } from "@/components/admin/kit";
 import { RoleSwitch } from "@/components/admin/small-actions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate, formatMoney } from "@/lib/format";
 import { requireAdmin } from "@/server/admin/guard";
@@ -44,10 +47,10 @@ export default async function CustomerPage({ params }: PageProps<"/admin/custome
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {user.orders.map((o) => (
-                  <TableRow key={o.id} className="relative">
+                {user.orders.map((o, i) => (
+                  <TableRow key={o.id} className={`relative ${rowEnter(i).className}`} style={rowEnter(i).style}>
                     <TableCell className="pl-4">
-                      <Link href={`/admin/orders/${o.orderNumber}`} className="font-medium after:absolute after:inset-0 hover:underline">
+                      <Link href={`/admin/orders/${o.orderNumber}`} className="font-medium after:absolute after:inset-0 hover:text-brand">
                         {o.orderNumber}
                       </Link>
                       <span className="block text-xs text-muted-foreground">{formatDate(o.createdAt)}</span>
@@ -63,22 +66,40 @@ export default async function CustomerPage({ params }: PageProps<"/admin/custome
         </Card>
 
         <div className="grid h-fit gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="grid grid-cols-2 gap-3 text-sm">
-                <div><dt className="text-muted-foreground">Spent</dt><dd className="text-lg font-semibold tabular-nums">{formatMoney(spent)}</dd></div>
-                <div><dt className="text-muted-foreground">Orders</dt><dd className="text-lg font-semibold tabular-nums">{counted.length}</dd></div>
-                <div><dt className="text-muted-foreground">Reviews</dt><dd className="tabular-nums">{user.reviews}</dd></div>
-                <div>
-                  <dt className="text-muted-foreground">Sign-in</dt>
-                  <dd>{[user.passwordHash ? "Email" : null, ...user.accounts.map((a) => a.provider)].filter(Boolean).join(", ")}</dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
+          <SpotlightCard className="pt-0">
+            {/* Profile header: brand gradient strip with the avatar overlapping it. */}
+            <div className="h-20 bg-linear-to-br from-chart-1 via-chart-2 to-chart-3" aria-hidden />
+            <div className="-mt-12 flex flex-col items-center gap-1 px-(--card-spacing) text-center">
+              <Avatar className="size-16 border-4 border-card">
+                {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt="" />}
+                <AvatarFallback className="bg-brand-soft text-lg font-semibold text-brand">{(user.name ?? user.email).slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <p className="mt-1 font-medium">{user.name ?? "—"}</p>
+              <StatusPill status={user.role} />
+            </div>
+            <dl className="grid grid-cols-2 gap-3 px-(--card-spacing) text-sm">
+              <div className="rounded-lg bg-muted/60 p-3">
+                <dt className="text-xs text-muted-foreground">Spent</dt>
+                <dd className="text-lg font-semibold">
+                  <NumberTicker value={spent} kind="money" />
+                </dd>
+              </div>
+              <div className="rounded-lg bg-muted/60 p-3">
+                <dt className="text-xs text-muted-foreground">Orders</dt>
+                <dd className="text-lg font-semibold">
+                  <NumberTicker value={counted.length} />
+                </dd>
+              </div>
+              <div className="rounded-lg bg-muted/60 p-3">
+                <dt className="text-xs text-muted-foreground">Reviews</dt>
+                <dd className="tabular-nums">{user.reviews}</dd>
+              </div>
+              <div className="rounded-lg bg-muted/60 p-3">
+                <dt className="text-xs text-muted-foreground">Sign-in</dt>
+                <dd className="capitalize">{[user.passwordHash ? "Email" : null, ...user.accounts.map((a) => a.provider)].filter(Boolean).join(", ")}</dd>
+              </div>
+            </dl>
+          </SpotlightCard>
           <Card>
             <CardContent>
               <RoleSwitch userId={user.id} isAdmin={user.role === "ADMIN"} isSelf={user.id === admin.id} />

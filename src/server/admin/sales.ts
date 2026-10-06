@@ -23,7 +23,9 @@ export const NEXT_STATUSES: Record<OrderStatus, OrderStatus[]> = {
 
 // ─── Orders ──────────────────────────────────────────────────────────────────
 
-export async function adminListOrders(opts: { q?: string; status?: string; page?: number }) {
+export async function adminListOrders(opts: { q?: string; status?: string; page?: number; sort?: string }) {
+  const desc = opts.sort?.startsWith("-") ?? true;
+  const key = opts.sort?.replace(/^-/, "") ?? "date";
   const page = Math.max(1, opts.page ?? 1);
   const size = 25;
   const filtered = () => {
@@ -42,7 +44,13 @@ export async function adminListOrders(opts: { q?: string; status?: string; page?
   };
   const [orders, { count }] = await Promise.all([
     filtered()
-      .orderBy([(o) => o.createdAt.desc(), (o) => o.id.desc()])
+      .orderBy([
+        (o) => {
+          const col = key === "total" ? o.total : o.createdAt;
+          return desc ? col.desc() : col.asc();
+        },
+        (o) => o.id.desc(),
+      ])
       .include("user", (u) => u.select("email", "name"))
       .include("items", (i) => i.sum("quantity"))
       .limit(size)
@@ -92,7 +100,20 @@ export async function updateOrderStatus(orderNumber: string, next: OrderStatus) 
 
 // ─── Customers ───────────────────────────────────────────────────────────────
 
-export async function adminListCustomers(opts: { q?: string; role?: string; page?: number }) {
+/** Headline numbers for the customers page. */
+export async function customerSummary() {
+  const monthAgo = new Date(Date.now() - 30 * DAY).toISOString();
+  const [roles, fresh] = await Promise.all([
+    db.orm.public.User.groupBy("role").aggregate((a) => ({ count: a.count() })),
+    db.orm.public.User.where((u) => u.createdAt.gte(monthAgo)).aggregate((a) => ({ count: a.count() })),
+  ]);
+  const of = (r: string) => roles.find((x) => x.role === r)?.count ?? 0;
+  return { customers: of("CUSTOMER"), admins: of("ADMIN"), newThisMonth: fresh.count };
+}
+
+export async function adminListCustomers(opts: { q?: string; role?: string; page?: number; sort?: string }) {
+  const desc = opts.sort?.startsWith("-") ?? true;
+  const key = opts.sort?.replace(/^-/, "") ?? "joined";
   const page = Math.max(1, opts.page ?? 1);
   const size = 25;
   const filtered = () => {
@@ -109,7 +130,13 @@ export async function adminListCustomers(opts: { q?: string; role?: string; page
   };
   const [users, { count }] = await Promise.all([
     filtered()
-      .orderBy([(u) => u.createdAt.desc(), (u) => u.id.desc()])
+      .orderBy([
+        (u) => {
+          const col = key === "name" ? u.name : u.createdAt;
+          return desc ? col.desc() : col.asc();
+        },
+        (u) => u.id.desc(),
+      ])
       .include("orders", (o) =>
         o.combine({
           count: o.count(),
@@ -144,10 +171,14 @@ export async function setCustomerRole(id: string, role: "ADMIN" | "CUSTOMER", ac
 const DAY = 24 * 60 * 60 * 1000;
 const countsAsSale = (status: string) => status !== "CANCELLED" && status !== "REFUNDED";
 
+/** Days of daily history sent to the overview chart (it slices 7/30/90 and the prior period). */
+export const HISTORY_DAYS = 180;
+
 export async function overviewStats(days = 30) {
   const now = Date.now();
-  const since = new Date(now - 2 * days * DAY).toISOString();
-  const [orders, byStatus, customers, newCustomers, items, lowStock, recent] = await Promise.all([
+  const history = Math.max(2 * days, HISTORY_DAYS);
+  const since = new Date(now - history * DAY).toISOString();
+  const [orders, byStatus, customers, newCustomers, items, lowStock, recent, signups, recentCustomers] = await Promise.all([
     db.orm.public.Order.where((o) => o.createdAt.gte(since)).select("createdAt", "total", "status").all(),
     db.orm.public.Order.groupBy("status").aggregate((a) => ({ count: a.count() })),
     db.orm.public.User.where({ role: "CUSTOMER" }).aggregate((a) => ({ count: a.count() })),
@@ -155,7 +186,7 @@ export async function overviewStats(days = 30) {
       .where((u) => u.createdAt.gte(new Date(now - days * DAY).toISOString()))
       .aggregate((a) => ({ count: a.count() })),
     db.orm.public.OrderItem.where((i) => i.order.some((o) => and(o.status.neq("CANCELLED"), o.status.neq("REFUNDED"), o.createdAt.gte(new Date(now - days * DAY).toISOString()))))
-      .select("productName", "quantity", "lineTotal")
+      .select("productName", "quantity", "lineTotal", "imageUrl")
       .all(),
     db.orm.public.ProductVariant.where((v) => and(v.isActive.eq(true), v.stock.lte(5)))
       .orderBy([(v) => v.stock.asc(), (v) => v.sku.asc()])
@@ -166,33 +197,52 @@ export async function overviewStats(days = 30) {
       .include("user", (u) => u.select("email", "name"))
       .limit(6)
       .all(),
+    db.orm.public.User.where({ role: "CUSTOMER" })
+      .where((u) => u.createdAt.gte(since))
+      .select("createdAt")
+      .all(),
+    db.orm.public.User.where({ role: "CUSTOMER" })
+      .orderBy((u) => u.createdAt.desc())
+      .select("id", "name", "email", "avatarUrl", "createdAt")
+      .limit(8)
+      .all(),
   ]);
 
   const start = now - days * DAY;
   const current = orders.filter((o) => new Date(o.createdAt).getTime() >= start);
-  const previous = orders.filter((o) => new Date(o.createdAt).getTime() < start);
+  const previous = orders.filter((o) => {
+    const t = new Date(o.createdAt).getTime();
+    return t < start && t >= start - days * DAY;
+  });
   const revenue = (list: typeof orders) => list.filter((o) => countsAsSale(o.status)).reduce((n, o) => n + o.total, 0);
   const paidCount = (list: typeof orders) => list.filter((o) => countsAsSale(o.status)).length;
 
-  // Daily revenue for the chart, oldest first, every day present (zero-filled).
-  const daily = Array.from({ length: days }, (_, i) => {
-    const d = new Date(start + (i + 1) * DAY);
-    return { date: d.toISOString().slice(0, 10), revenue: 0, orders: 0 };
+  // Daily series for the chart, oldest first, every day present (zero-filled).
+  // Revenue is in naira here (the chart's unit); everything else stays in kobo.
+  const daily = Array.from({ length: history }, (_, i) => {
+    const d = new Date(now - (history - 1 - i) * DAY);
+    return { date: d.toISOString().slice(0, 10), revenue: 0, orders: 0, customers: 0 };
   });
   const index = new Map(daily.map((d, i) => [d.date, i]));
-  for (const o of current) {
-    // Postgres returns "2026-10-06 00:57:14+01"; normalise to a UTC day key.
-    const i = index.get(new Date(o.createdAt).toISOString().slice(0, 10));
+  // Postgres returns "2026-10-06 00:57:14+01"; normalise to a UTC day key.
+  const dayOf = (ts: string) => index.get(new Date(ts).toISOString().slice(0, 10));
+  for (const o of orders) {
+    const i = dayOf(o.createdAt);
     if (i === undefined || !countsAsSale(o.status)) continue;
     daily[i]!.revenue += o.total / 100;
     daily[i]!.orders += 1;
   }
+  for (const u of signups) {
+    const i = dayOf(u.createdAt);
+    if (i !== undefined) daily[i]!.customers += 1;
+  }
 
-  const top = new Map<string, { name: string; units: number; revenue: number }>();
+  const top = new Map<string, { name: string; units: number; revenue: number; image: string | null }>();
   for (const it of items) {
-    const row = top.get(it.productName) ?? { name: it.productName, units: 0, revenue: 0 };
+    const row = top.get(it.productName) ?? { name: it.productName, units: 0, revenue: 0, image: null };
     row.units += it.quantity;
     row.revenue += it.lineTotal;
+    row.image ??= it.imageUrl;
     top.set(it.productName, row);
   }
 
@@ -217,6 +267,7 @@ export async function overviewStats(days = 30) {
     topProducts: [...top.values()].sort((a, b) => b.units - a.units).slice(0, 5),
     lowStock,
     recent,
+    recentCustomers,
     pending: byStatus.find((s) => s.status === "PENDING")?.count ?? 0,
   };
 }
