@@ -150,7 +150,7 @@ export function SiteFooter() {
         <p
           data-wordmark
           aria-hidden
-          className="font-logo -mb-[0.06em] text-[clamp(4rem,31vw,30.5rem)] font-semibold uppercase leading-[0.9] tracking-tight text-white"
+          className="font-logo whitespace-nowrap pb-4 text-[clamp(3rem,24vw,23rem)] font-semibold uppercase leading-none tracking-tight text-white sm:pb-6"
         >
           {nav.brand}
         </p>
