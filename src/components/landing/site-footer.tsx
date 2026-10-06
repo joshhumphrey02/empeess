@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { useRef, useState } from "react";
 
+import { BrandMark } from "@/components/brand";
 import { Input } from "@/components/ui/input";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { gsap, SplitText, useGSAP } from "@/lib/gsap";
@@ -163,7 +164,9 @@ export function SiteFooter() {
               Privacy Policy
             </Link>
           </div>
-          <p>© {new Date().getFullYear()} {nav.brand}. All rights reserved.</p>
+          <p className="flex items-center gap-2">
+            <BrandMark className="size-6" />© {new Date().getFullYear()} {nav.brand}. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

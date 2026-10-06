@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { BrandMark } from "@/components/brand";
 import {
   Sidebar,
   SidebarContent,
@@ -64,9 +65,7 @@ export function AdminSidebar({ counts }: { counts: { pending: number; lowStock: 
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link href="/admin" />}>
-              <span className="grid size-8 place-items-center rounded-lg bg-neutral-950 font-logo text-sm font-semibold text-white">
-                E
-              </span>
+              <BrandMark className="size-8" />
               <span className="flex flex-col leading-tight">
                 <span className="font-logo text-base font-semibold uppercase tracking-tight">Empeess</span>
                 <span className="text-xs text-muted-foreground">Dashboard</span>

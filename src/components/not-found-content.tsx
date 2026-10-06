@@ -1,6 +1,7 @@
 import { IconArrowLeft, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 
+import { BrandLogo } from "@/components/brand";
 import { FadeUp, NotFoundHero } from "@/components/not-found-hero";
 import { listCategories } from "@/server/catalog";
 
@@ -16,8 +17,8 @@ export async function NotFoundContent({ standalone = false }: { standalone?: boo
     <div className={standalone ? "flex min-h-svh flex-1 flex-col bg-canvas" : "flex flex-col"}>
       {standalone && (
         <header className="mx-auto flex w-full max-w-360 items-center justify-between px-4 py-6 sm:px-8">
-          <Link href="/" className="font-logo text-2xl font-semibold uppercase tracking-tight text-neutral-950">
-            Empeess
+          <Link href="/" className="text-2xl text-neutral-950">
+            <BrandLogo />
           </Link>
           <Link href="/shop" className="text-sm text-neutral-700 underline-offset-4 hover:text-neutral-950 hover:underline">
             Shop all

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { logout } from "@/app/actions/auth";
+import { BrandLogo } from "@/components/brand";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -48,8 +49,8 @@ export function AccountSidebar({
   return (
     <Sidebar variant="inset">
       <SidebarHeader className="gap-6 px-4 pt-5">
-        <Link href="/" className="font-logo text-2xl font-semibold uppercase tracking-tight text-neutral-950">
-          Empeess
+        <Link href="/" className="text-2xl text-neutral-950">
+          <BrandLogo />
         </Link>
         <div className="flex items-center gap-3">
           <Avatar className="size-10">

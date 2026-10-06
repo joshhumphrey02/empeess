@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { BrandLogo } from "@/components/brand";
 import { cn } from "@/lib/utils";
 
 import { hero, images, nav } from "./content";
@@ -119,9 +120,9 @@ export function SiteHeader({
 
           <Link
             href="/"
-            className="font-logo text-2xl font-semibold uppercase tracking-tight text-neutral-950 sm:text-3xl"
+            className="text-2xl text-neutral-950 sm:text-3xl"
           >
-            {nav.brand}
+            <BrandLogo />
           </Link>
 
           <div className="flex items-center gap-2">
