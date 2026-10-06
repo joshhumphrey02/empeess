@@ -7,11 +7,14 @@ import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SmoothScroll } from "@/components/landing/smooth-scroll";
 import { Testimonials } from "@/components/landing/testimonials";
+import { getCurrentUser } from "@/server/auth/session";
+import { getCartCount } from "@/server/cart";
 
-export default function Home() {
+export default async function Home() {
+  const [user, cartCount] = await Promise.all([getCurrentUser(), getCartCount()]);
   return (
     <SmoothScroll>
-      <SiteHeader />
+      <SiteHeader cartCount={cartCount} signedIn={Boolean(user)} />
       <main className="flex-1 bg-white">
         <Hero />
         <Moments />

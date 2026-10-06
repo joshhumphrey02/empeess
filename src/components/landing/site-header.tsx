@@ -27,19 +27,26 @@ function IconCircle({
   label,
   href,
   onClick,
+  badge,
   children,
 }: {
   label: string;
   href?: string;
   onClick?: () => void;
+  badge?: number;
   children: React.ReactNode;
 }) {
   const className =
-    "grid size-11 place-items-center rounded-full bg-white text-neutral-900 shadow-[0_1px_0_rgba(0,0,0,0.04)] transition-transform duration-300 hover:scale-105 active:scale-95";
+    "relative grid size-11 place-items-center rounded-full bg-white text-neutral-900 ring-1 ring-neutral-900/5 transition-transform duration-300 hover:scale-105 active:scale-95";
   if (href)
     return (
       <Link href={href} aria-label={label} className={className}>
         {children}
+        {badge ? (
+          <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-brand px-1 text-[10px] font-semibold leading-5 text-white">
+            {badge > 99 ? "99+" : badge}
+          </span>
+        ) : null}
       </Link>
     );
   return (
@@ -49,7 +56,16 @@ function IconCircle({
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({
+  cartCount = 0,
+  signedIn = false,
+  solid = false,
+}: {
+  cartCount?: number;
+  signedIn?: boolean;
+  /** Store pages: keep the frosted bar visible from the top. */
+  solid?: boolean;
+}) {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -79,7 +95,7 @@ export function SiteHeader() {
         <div
           className={cn(
             "mx-auto flex max-w-360 items-center justify-between rounded-full px-2 py-2 transition-[background-color,box-shadow,backdrop-filter] duration-500",
-            scrolled && !open
+            (scrolled || solid) && !open
               ? "bg-white/70 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-xl"
               : "bg-transparent",
           )}
@@ -114,10 +130,14 @@ export function SiteHeader() {
                 <IconSearch className="size-5" stroke={1.5} />
               </IconCircle>
             </span>
-            <IconCircle label="Cart" href="/cart">
+            <IconCircle
+              label={cartCount ? `Cart, ${cartCount} item${cartCount === 1 ? "" : "s"}` : "Cart"}
+              href="/cart"
+              badge={cartCount}
+            >
               <IconShoppingBag className="size-5" stroke={1.5} />
             </IconCircle>
-            <IconCircle label="Account" href="/account">
+            <IconCircle label={signedIn ? "Your account" : "Sign in"} href={signedIn ? "/account" : "/login"}>
               <IconUser className="size-5" stroke={1.5} />
             </IconCircle>
           </div>
