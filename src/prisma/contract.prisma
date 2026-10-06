@@ -387,3 +387,31 @@ model Payment {
 
   @@index([orderId])
 }
+
+// ─── Marketing & support ─────────────────────────────────────────────────────
+
+// Footer newsletter sign-ups. Unsubscribing keeps the row (with a timestamp)
+// so re-subscribing is a single update and we never mail someone who left.
+model NewsletterSubscriber {
+  id             String             @id @default(uuid(7))
+  email          String             @unique
+  unsubscribedAt TimestamptzString?
+
+  createdAt      TimestamptzString  @default(now())
+  updatedAt      temporal.updatedAtString()
+}
+
+// Messages from the contact page, read and resolved from the dashboard.
+model ContactMessage {
+  id        String             @id @default(uuid(7))
+  name      String
+  email     String
+  subject   String?
+  message   String
+  orderNumber String?
+  readAt    TimestamptzString?
+
+  createdAt TimestamptzString  @default(now())
+
+  @@index([createdAt])
+}
