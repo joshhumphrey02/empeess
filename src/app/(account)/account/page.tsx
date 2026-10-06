@@ -27,6 +27,7 @@ export default async function AccountOverview() {
 
   return (
     <div className="space-y-12">
+      <h1 className="text-2xl font-medium tracking-tight">Overview</h1>
       <ul className="grid gap-3 sm:grid-cols-3">
         {cards.map((c) => (
           <li key={c.label} className="rounded-3xl bg-canvas p-5">
