@@ -1,8 +1,8 @@
 "use client";
 
 import { IconMinus, IconPlus } from "@tabler/icons-react";
-import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { addToCart } from "@/app/actions/cart";
 import { initialFormState } from "@/app/actions/form-state";
@@ -10,7 +10,8 @@ import { formatMoney } from "@/lib/format";
 import { MAX_QTY_PER_LINE } from "@/lib/store-config";
 import { cn } from "@/lib/utils";
 
-import { FormMessage, SubmitButton } from "./form-bits";
+import { showAddedToCart } from "./cart-toast";
+import { SubmitButton } from "./form-bits";
 
 type Variant = {
   id: string;
@@ -31,11 +32,13 @@ type DimKey = (typeof DIMENSIONS)[number]["key"];
 const display = (key: DimKey, value: string | number) => (key === "volumeMl" ? `${value}ml` : String(value));
 
 export function AddToCart({
+  product,
   variants,
   basePrice,
   compareAtPrice,
   currency,
 }: {
+  product: { name: string; image: string | null };
   variants: Variant[];
   basePrice: number;
   compareAtPrice: number | null;
@@ -61,6 +64,23 @@ export function AddToCart({
   );
 
   const variant = variants.find((v) => dims.every((d) => v[d.key] === selected[d.key])) ?? null;
+  const label = dims.map((d) => (selected[d.key] !== undefined ? display(d.key, selected[d.key]!) : "")).filter(Boolean).join(" / ");
+
+  // Each submit returns a fresh state object: announce it as a toast, not inline text.
+  useEffect(() => {
+    if (state.error) toast.error(state.error);
+    else if (state.ok) {
+      showAddedToCart({
+        name: product.name,
+        image: product.image,
+        label,
+        quantity: Number(state.fields?.quantity ?? 1),
+        note: state.message?.startsWith("Added —") ? state.message.replace("Added — ", "") : undefined,
+      });
+    }
+    // Only react to a new action result, not to option changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
   const price = variant?.price ?? basePrice;
   const soldOut = !variant || variant.stock <= 0;
   const maxQty = Math.max(1, Math.min(variant?.stock ?? 1, MAX_QTY_PER_LINE));
@@ -148,12 +168,6 @@ export function AddToCart({
         </SubmitButton>
       </div>
 
-      <FormMessage state={state} />
-      {state.ok && (
-        <Link href="/cart" className="inline-block text-sm underline underline-offset-4">
-          View cart and checkout →
-        </Link>
-      )}
     </form>
   );
 }

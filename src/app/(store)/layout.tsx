@@ -1,5 +1,6 @@
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
+import { StoreToaster } from "@/components/store/store-toaster";
 import { getCurrentUser } from "@/server/auth/session";
 import { getCartCount } from "@/server/cart";
 
@@ -10,6 +11,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
       <SiteHeader solid cartCount={cartCount} signedIn={Boolean(user)} />
       <main className="flex-1 bg-white pb-24 pt-28 sm:pt-32">{children}</main>
       <SiteFooter />
+      <StoreToaster />
     </>
   );
 }

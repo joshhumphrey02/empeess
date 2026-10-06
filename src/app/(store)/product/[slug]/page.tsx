@@ -78,6 +78,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
 
           <div className="mt-8">
             <AddToCart
+              product={{ name: product.name, image: product.images[0]?.url ?? null }}
               variants={product.variants}
               basePrice={product.basePrice}
               compareAtPrice={product.compareAtPrice}

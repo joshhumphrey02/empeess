@@ -21,6 +21,7 @@ export async function addToCart(_prev: FormState, form: FormData): Promise<FormS
     return {
       ok: true,
       message: capped ? `Added — limited to ${inCart} by available stock.` : "Added to cart.",
+      fields: { quantity: String(capped ? inCart : quantity) },
     };
   } catch (error) {
     if (error instanceof CartError) return { error: error.message };

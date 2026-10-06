@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 
 import { AccountSidebar } from "@/components/account/account-sidebar";
+import { StoreToaster } from "@/components/store/store-toaster";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { db } from "@/prisma/db";
@@ -58,6 +59,7 @@ export default async function AccountLayout({ children }: LayoutProps<"/account"
           <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 md:px-8 md:py-10">{children}</div>
         </SidebarInset>
       </SidebarProvider>
+      <StoreToaster />
     </TooltipProvider>
   );
 }
