@@ -7,6 +7,8 @@ import { db } from "@/prisma/db";
 import { hashPassword, verifyPassword } from "@/server/auth/password";
 import { getCurrentUser, requireUser } from "@/server/auth/session";
 import { cancelOrder, CheckoutError, placeOrder } from "@/server/orders";
+import { paystackConfigured } from "@/server/paystack";
+import { PaymentError, startPayment } from "@/server/payments";
 
 import type { FormState } from "./form-state";
 
@@ -43,8 +45,7 @@ export async function changePassword(_prev: FormState, form: FormData): Promise<
   return { ok: true, message: row?.passwordHash ? "Password changed." : "Password set. You can now sign in with email too." };
 }
 
-export async function addAddress(_prev: FormState, form: FormData): Promise<FormState> {
-  const user = await requireUser("/account/addresses");
+function readAddress(form: FormData) {
   const fields = {
     fullName: text(form, "fullName", 80),
     phone: text(form, "phone", 30),
@@ -57,15 +58,22 @@ export async function addAddress(_prev: FormState, form: FormData): Promise<Form
   const missing = (["fullName", "phone", "line1", "city", "state"] as const).filter((k) => !fields[k]);
   if (missing.length) return { error: "Fill in name, phone, address, city and state.", fields };
   if (!/^[+\d][\d\s-]{6,}$/.test(fields.phone)) return { error: "Enter a valid phone number.", fields };
+  return { fields };
+}
+
+export async function addAddress(_prev: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser("/account/addresses");
+  const { error, fields } = readAddress(form);
+  if (error) return { error, fields };
 
   const { count } = await db.orm.public.Address.where({ userId: user.id }).aggregate((a) => ({ count: a.count() }));
   const makeDefault = count === 0 || form.get("isDefault") === "on";
 
-  await db.transaction(async (tx) => {
+  const created = await db.transaction(async (tx) => {
     if (makeDefault) {
       await tx.orm.public.Address.where({ userId: user.id, isDefault: true }).updateAll({ isDefault: false });
     }
-    await tx.orm.public.Address.create({
+    return tx.orm.public.Address.create({
       userId: user.id,
       ...fields,
       line2: fields.line2 || null,
@@ -75,7 +83,32 @@ export async function addAddress(_prev: FormState, form: FormData): Promise<Form
     });
   });
   refresh();
-  return { ok: true, message: "Address saved." };
+  // The id lets checkout select the address it just saved.
+  return { ok: true, message: "Address saved.", fields: { addressId: created.id } };
+}
+
+export async function updateAddress(_prev: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser("/account/addresses");
+  const id = String(form.get("addressId") ?? "");
+  const { error, fields } = readAddress(form);
+  if (error) return { error, fields };
+  const makeDefault = form.get("isDefault") === "on";
+
+  const updated = await db.transaction(async (tx) => {
+    const row = await tx.orm.public.Address.where({ id, userId: user.id }).update({
+      ...fields,
+      line2: fields.line2 || null,
+      postalCode: fields.postalCode || null,
+    });
+    if (row && makeDefault && !row.isDefault) {
+      await tx.orm.public.Address.where({ userId: user.id, isDefault: true }).updateAll({ isDefault: false });
+      await tx.orm.public.Address.where({ id }).update({ isDefault: true });
+    }
+    return row;
+  });
+  if (!updated) return { error: "That address no longer exists." };
+  refresh();
+  return { ok: true, message: "Address updated.", fields: { addressId: id } };
 }
 
 export async function deleteAddress(form: FormData) {
@@ -103,6 +136,7 @@ export async function setDefaultAddress(form: FormData) {
 
 export async function checkout(_prev: FormState, form: FormData): Promise<FormState> {
   const user = await requireUser("/checkout");
+  if (!paystackConfigured()) return { error: "Online payment isn't available right now. Please try again shortly." };
   const addressId = String(form.get("addressId") ?? "");
   let orderNumber: string;
   try {
@@ -114,7 +148,34 @@ export async function checkout(_prev: FormState, form: FormData): Promise<FormSt
   }
   // The store layout (header cart badge) must re-render after the redirect.
   revalidatePath("/", "layout");
-  redirect(`/account/orders/${orderNumber}?placed=1`);
+
+  // The order now holds the stock; send the customer to Paystack to pay for it.
+  // If Paystack can't be reached, the order page offers "Pay now" to retry.
+  let paymentUrl: string;
+  try {
+    paymentUrl = await startPayment({ userId: user.id, orderNumber, email: user.email });
+  } catch (error) {
+    if (!(error instanceof PaymentError)) console.error(error);
+    redirect(`/account/orders/${orderNumber}?payment=error`);
+  }
+  redirect(paymentUrl);
+}
+
+/** "Pay now" on an unpaid order: a fresh Paystack attempt. */
+export async function payForOrder(_prev: FormState, form: FormData): Promise<FormState> {
+  const orderNumber = String(form.get("orderNumber") ?? "");
+  const user = await requireUser(`/account/orders/${orderNumber}`);
+  let paymentUrl: string;
+  try {
+    paymentUrl = await startPayment({ userId: user.id, orderNumber, email: user.email });
+  } catch (error) {
+    if (error instanceof PaymentError) {
+      refresh();
+      return { error: error.message };
+    }
+    throw error;
+  }
+  redirect(paymentUrl);
 }
 
 export async function cancelMyOrder(form: FormData) {

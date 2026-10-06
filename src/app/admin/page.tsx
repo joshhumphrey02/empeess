@@ -89,9 +89,9 @@ export default async function AdminOverview() {
         </div>
       </section>
 
-      {s.pending > 0 && (
+      {s.toFulfil > 0 && (
         <Link
-          href="/admin/orders?status=PENDING"
+          href="/admin/orders?status=PAID"
           className="group flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 transition-colors hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200 dark:hover:bg-amber-500/15"
         >
           <span className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export default async function AdminOverview() {
               <span className="relative inline-flex size-2.5 rounded-full bg-amber-500" />
             </span>
             <IconAlertTriangle className="size-4" aria-hidden />
-            {s.pending} order{s.pending === 1 ? " is" : "s are"} waiting to be processed.
+            {s.toFulfil} paid order{s.toFulfil === 1 ? " is" : "s are"} waiting to be packed.
           </span>
           <span className="flex items-center gap-1 font-medium">
             Review <IconArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />

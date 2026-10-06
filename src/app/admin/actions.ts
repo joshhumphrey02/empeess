@@ -21,6 +21,7 @@ import {
   type ProductStatus,
 } from "@/server/admin/products";
 import { setCustomerRole, updateOrderStatus, type OrderStatus } from "@/server/admin/sales";
+import { PaymentError, refundOrder } from "@/server/payments";
 
 export type ActionResult<T = undefined> = { ok: true; data?: T; message?: string } | { ok: false; error: string };
 
@@ -36,7 +37,9 @@ async function run<T>(fn: (adminId: string) => Promise<T>, message?: string): Pr
     const data = await fn(adminId);
     return { ok: true, data, message };
   } catch (error) {
-    if (error instanceof ProductInputError || error instanceof AdminInputError) return { ok: false, error: error.message };
+    if (error instanceof ProductInputError || error instanceof AdminInputError || error instanceof PaymentError) {
+      return { ok: false, error: error.message };
+    }
     console.error(error);
     return { ok: false, error: "Something went wrong. Please try again." };
   }
@@ -127,6 +130,14 @@ export async function updateOrderStatusAction(orderNumber: string, status: Order
     await updateOrderStatus(orderNumber, status);
     revalidatePath("/", "layout");
   }, `Order marked ${status.toLowerCase()}.`);
+}
+
+/** Refunds the order's Paystack payment in full and marks the order refunded. */
+export async function refundOrderAction(orderNumber: string, note?: string) {
+  return run(async () => {
+    await refundOrder(orderNumber, note);
+    revalidatePath("/", "layout");
+  }, "Refund started with Paystack. The customer usually sees it in a few working days.");
 }
 
 export async function setCustomerRoleAction(userId: string, role: "ADMIN" | "CUSTOMER") {

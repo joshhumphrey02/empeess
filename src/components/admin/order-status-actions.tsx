@@ -1,6 +1,8 @@
 "use client";
 
-import { updateOrderStatusAction } from "@/app/admin/actions";
+import { IconReceiptRefund } from "@tabler/icons-react";
+
+import { refundOrderAction, updateOrderStatusAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import type { OrderStatus } from "@/server/admin/sales";
 
@@ -13,26 +15,31 @@ const LABEL: Record<OrderStatus, string> = {
   PROCESSING: "Start processing",
   SHIPPED: "Mark as shipped",
   DELIVERED: "Mark as delivered",
-  CANCELLED: "Cancel order",
-  REFUNDED: "Mark refunded",
+  CANCELLED: "Cancel unpaid order",
+  REFUNDED: "Refund",
 };
 
-export function OrderStatusActions({ orderNumber, next }: { orderNumber: string; next: OrderStatus[] }) {
+export function OrderStatusActions({
+  orderNumber,
+  next,
+  refundable,
+}: {
+  orderNumber: string;
+  next: OrderStatus[];
+  /** Formatted amount when there's a successful Paystack payment to refund. */
+  refundable?: string | null;
+}) {
   const { pending, run } = useAdminAction();
-  if (next.length === 0) return <p className="text-sm text-muted-foreground">No further status changes.</p>;
+  if (next.length === 0 && !refundable) return <p className="text-sm text-muted-foreground">No further status changes.</p>;
 
   return (
     <div className="flex flex-wrap gap-2">
       {next.map((status) =>
-        status === "CANCELLED" || status === "REFUNDED" ? (
+        status === "CANCELLED" ? (
           <ConfirmAction
             key={status}
-            title={status === "CANCELLED" ? `Cancel ${orderNumber}?` : `Mark ${orderNumber} refunded?`}
-            description={
-              status === "CANCELLED"
-                ? "Items go back into stock and the customer sees the order as cancelled."
-                : "Record that the customer's money has been returned. Stock is not changed."
-            }
+            title={`Cancel ${orderNumber}?`}
+            description="The customer hasn't paid. The items go back into stock and the customer sees the order as cancelled."
             confirmLabel={LABEL[status]}
             action={() => updateOrderStatusAction(orderNumber, status)}
             trigger={(open) => (
@@ -46,6 +53,19 @@ export function OrderStatusActions({ orderNumber, next }: { orderNumber: string;
             {LABEL[status]}
           </Button>
         ),
+      )}
+      {refundable && (
+        <ConfirmAction
+          title={`Refund ${refundable} for ${orderNumber}?`}
+          description="Paystack returns the full amount to the customer's card or account, usually within a few working days. Items that haven't shipped go back into stock. This can't be undone."
+          confirmLabel="Refund"
+          action={() => refundOrderAction(orderNumber)}
+          trigger={(open) => (
+            <Button variant="outline" disabled={pending} onClick={open} className="text-destructive hover:text-destructive">
+              <IconReceiptRefund /> Refund {refundable}
+            </Button>
+          )}
+        />
       )}
     </div>
   );

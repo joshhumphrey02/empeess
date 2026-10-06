@@ -35,7 +35,7 @@ type NavItem = {
   label: string;
   icon: typeof IconBox;
   exact?: boolean;
-  badge?: "pending" | "lowStock";
+  badge?: "toFulfil" | "lowStock";
 };
 
 const groups: { label: string; items: NavItem[] }[] = [
@@ -43,7 +43,7 @@ const groups: { label: string; items: NavItem[] }[] = [
     label: "Store",
     items: [
       { href: "/admin", label: "Overview", icon: IconLayoutDashboard, exact: true },
-      { href: "/admin/orders", label: "Orders", icon: IconReceipt, badge: "pending" },
+      { href: "/admin/orders", label: "Orders", icon: IconReceipt, badge: "toFulfil" },
       { href: "/admin/customers", label: "Customers", icon: IconUsers },
     ],
   },
@@ -58,7 +58,7 @@ const groups: { label: string; items: NavItem[] }[] = [
   },
 ];
 
-export function AdminSidebar({ counts }: { counts: { pending: number; lowStock: number } }) {
+export function AdminSidebar({ counts }: { counts: { toFulfil: number; lowStock: number } }) {
   const pathname = usePathname();
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -107,7 +107,7 @@ export function AdminSidebar({ counts }: { counts: { pending: number; lowStock: 
                       {count > 0 && (
                         <SidebarMenuBadge
                           className={item.badge === "lowStock" ? "text-amber-700 dark:text-amber-400" : "text-brand"}
-                          aria-label={`${count} ${item.badge === "pending" ? "pending orders" : "low-stock variants"}`}
+                          aria-label={`${count} ${item.badge === "toFulfil" ? "paid orders to fulfil" : "low-stock variants"}`}
                         >
                           {count}
                         </SidebarMenuBadge>

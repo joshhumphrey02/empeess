@@ -8,6 +8,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { db } from "@/prisma/db";
 import { requireAdmin } from "@/server/admin/guard";
+import { expireStaleOrders } from "@/server/payments";
 
 export const metadata: Metadata = {
   title: { default: "Dashboard — EMPEESS", template: "%s — EMPEESS Dashboard" },
@@ -16,9 +17,11 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const user = await requireAdmin("/admin");
-  const [store, pending, lowStock] = await Promise.all([
+  // Release stock held by orders that were never paid (no cron needed).
+  await expireStaleOrders().catch((e) => console.error("[admin] expiring unpaid orders failed", e));
+  const [store, toFulfil, lowStock] = await Promise.all([
     cookies(),
-    db.orm.public.Order.where({ status: "PENDING" }).aggregate((a) => ({ count: a.count() })),
+    db.orm.public.Order.where({ status: "PAID" }).aggregate((a) => ({ count: a.count() })),
     db.orm.public.ProductVariant.where((v) => v.isActive.eq(true))
       .where((v) => v.stock.lte(5))
       .aggregate((a) => ({ count: a.count() })),
@@ -29,7 +32,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     <AdminThemeProvider>
       <TooltipProvider>
         <SidebarProvider defaultOpen={defaultOpen}>
-          <AdminSidebar counts={{ pending: pending.count, lowStock: lowStock.count }} />
+          <AdminSidebar counts={{ toFulfil: toFulfil.count, lowStock: lowStock.count }} />
           <SidebarInset className="min-w-0">
             <AdminHeader user={user} />
             <div className="flex-1 p-4 md:p-6 lg:p-8">{children}</div>

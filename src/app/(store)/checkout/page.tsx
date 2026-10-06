@@ -3,13 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { AddressForm } from "@/components/store/address-form";
 import { CheckoutForm } from "@/components/store/checkout-form";
 import { PageHeading } from "@/components/store/page-heading";
 import { formatMoney } from "@/lib/format";
 import { db } from "@/prisma/db";
 import { requireUser } from "@/server/auth/session";
 import { getCart } from "@/server/cart";
+import { paystackConfigured } from "@/server/paystack";
 
 export const metadata: Metadata = { title: "Checkout — EMPEESS" };
 
@@ -35,22 +35,13 @@ export default async function CheckoutPage() {
               </Link>
               .
             </p>
-          ) : addresses.length === 0 ? (
-            <section>
-              <h2 className="mb-2 text-xl font-medium tracking-tight">Where should we deliver?</h2>
-              <p className="mb-6 text-sm text-neutral-600">Add a delivery address to continue.</p>
-              <AddressForm defaultName={user.name ?? undefined} submitLabel="Save and continue" />
-            </section>
           ) : (
-            <>
-              <CheckoutForm addresses={addresses} total={formatMoney(cart.total)} />
-              <details className="mt-10 rounded-3xl border border-neutral-200 p-5">
-                <summary className="cursor-pointer text-sm font-medium">Deliver somewhere else</summary>
-                <div className="mt-6">
-                  <AddressForm defaultName={user.name ?? undefined} />
-                </div>
-              </details>
-            </>
+            <CheckoutForm
+              addresses={addresses}
+              total={formatMoney(cart.total)}
+              defaultName={user.name ?? undefined}
+              paymentsReady={paystackConfigured()}
+            />
           )}
         </div>
 

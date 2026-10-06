@@ -9,6 +9,7 @@ import { NumberTicker } from "@/components/ui/number-ticker";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate, formatMoney } from "@/lib/format";
+import { isSale } from "@/lib/store-config";
 import { requireAdmin } from "@/server/admin/guard";
 import { adminGetCustomer } from "@/server/admin/sales";
 
@@ -20,7 +21,7 @@ export default async function CustomerPage({ params }: PageProps<"/admin/custome
   const user = await adminGetCustomer(id).catch(() => null);
   if (!user) notFound();
 
-  const counted = user.orders.filter((o) => o.status !== "CANCELLED" && o.status !== "REFUNDED");
+  const counted = user.orders.filter((o) => isSale(o.status));
   const spent = counted.reduce((n, o) => n + o.total, 0);
 
   return (

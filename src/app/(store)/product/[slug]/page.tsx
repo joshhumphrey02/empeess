@@ -1,4 +1,4 @@
-import { IconStarFilled, IconTruckDelivery, IconRefresh } from "@tabler/icons-react";
+import { IconLock, IconRefresh, IconStarFilled, IconTruckDelivery } from "@tabler/icons-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -98,8 +98,17 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
               Free delivery on orders over {formatMoney(FREE_SHIPPING_THRESHOLD)}.
             </li>
             <li className="flex gap-3">
+              <IconLock className="size-5 shrink-0" stroke={1.5} />
+              Secure payment by card, bank transfer or USSD with Paystack.
+            </li>
+            <li className="flex gap-3">
               <IconRefresh className="size-5 shrink-0" stroke={1.5} />
-              Cancel any time before your order ships.
+              <span>
+                Easy returns within 7 days.{" "}
+                <Link href="/returns" className="underline underline-offset-4">
+                  Returns policy
+                </Link>
+              </span>
             </li>
           </ul>
         </div>

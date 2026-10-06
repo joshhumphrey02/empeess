@@ -8,12 +8,23 @@ import { OrderStatusActions } from "@/components/admin/order-status-actions";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { formatMoney } from "@/lib/format";
+import { PAYMENT_WINDOW_MINUTES } from "@/lib/store-config";
 import { cn } from "@/lib/utils";
 import { requireAdmin } from "@/server/admin/guard";
 import { adminGetOrder, NEXT_STATUSES } from "@/server/admin/sales";
 
 export async function generateMetadata({ params }: PageProps<"/admin/orders/[orderNumber]">) {
   return { title: `Order ${(await params).orderNumber}` };
+}
+
+const PAYMENT_TONE: Record<string, string> = {
+  SUCCESS: "bg-emerald-100 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-300",
+  PENDING: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
+  FAILED: "bg-red-100 text-red-900 dark:bg-red-500/15 dark:text-red-300",
+  REFUNDED: "bg-muted text-muted-foreground",
+};
+function PaymentPill({ status }: { status: string }) {
+  return <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium capitalize", PAYMENT_TONE[status])}>{status.toLowerCase()}</span>;
 }
 
 const when = (iso: string | null) =>
@@ -32,6 +43,8 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
     { label: "Delivered", at: order.deliveredAt },
     { label: "Cancelled", at: order.cancelledAt },
   ].filter((t) => t.at);
+
+  const paid = order.payments.find((p) => p.status === "SUCCESS") ?? null;
 
   // Fulfilment progress for the stepper; cancelled/refunded orders stop where they were.
   const STEPS = ["PENDING", "PAID", "PROCESSING", "SHIPPED", "DELIVERED"] as const;
@@ -101,7 +114,21 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
               <CardTitle>Update status</CardTitle>
             </CardHeader>
             <CardContent>
-              <OrderStatusActions orderNumber={order.orderNumber} next={NEXT_STATUSES[order.status]} />
+              <OrderStatusActions
+                orderNumber={order.orderNumber}
+                next={NEXT_STATUSES[order.status]}
+                refundable={paid ? formatMoney(paid.amount, paid.currency) : null}
+              />
+              {order.status === "PENDING" && (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Awaiting payment. Unpaid orders are cancelled automatically {PAYMENT_WINDOW_MINUTES} minutes after they&apos;re placed.
+                </p>
+              )}
+              {order.status === "CANCELLED" && paid && (
+                <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
+                  This order was paid after it had been cancelled and the items had sold out. Refund the customer.
+                </p>
+              )}
             </CardContent>
           </SpotlightCard>
 
@@ -136,7 +163,7 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                   <div className="flex justify-between"><dt className="text-muted-foreground">Discount</dt><dd className="tabular-nums">−{formatMoney(order.discount, order.currency)}</dd></div>
                 )}
                 <div className="flex justify-between text-base font-semibold"><dt>Total</dt><dd className="tabular-nums">{formatMoney(order.total, order.currency)}</dd></div>
-                <div className="flex justify-between text-muted-foreground"><dt>Payment</dt><dd>Pay on delivery</dd></div>
+                <div className="flex justify-between text-muted-foreground"><dt>Payment</dt><dd>{paid ? "Paid with Paystack" : order.status === "REFUNDED" ? "Refunded" : "Not paid"}</dd></div>
               </dl>
             </CardContent>
           </SpotlightCard>
@@ -193,6 +220,29 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                   </li>
                 ))}
               </ol>
+            </CardContent>
+          </SpotlightCard>
+          <SpotlightCard>
+            <CardHeader>
+              <CardTitle>Payments</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-2 text-sm">
+              {order.payments.length === 0 && <p className="text-muted-foreground">No payment attempts yet.</p>}
+              {order.payments.map((p) => {
+                const raw = (p.rawResponse ?? {}) as { channel?: string | null; gateway_response?: string | null };
+                return (
+                  <div key={p.id} className="rounded-lg border p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium tabular-nums">{formatMoney(p.amount, p.currency)}</span>
+                      <PaymentPill status={p.status} />
+                    </div>
+                    <p className="mt-1 break-all font-mono text-xs text-muted-foreground">{p.reference}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {[raw.channel && `via ${raw.channel.replace(/_/g, " ")}`, raw.gateway_response, when(p.paidAt ?? p.createdAt)].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+                );
+              })}
             </CardContent>
           </SpotlightCard>
         </div>

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { OrderList } from "@/components/store/order-bits";
 import { formatMoney } from "@/lib/format";
+import { SALE_STATUSES } from "@/lib/store-config";
 import { db } from "@/prisma/db";
 import { requireUser } from "@/server/auth/session";
 import { listOrders } from "@/server/orders";
@@ -14,7 +15,7 @@ export default async function AccountOverview() {
   const [recent, stats, address] = await Promise.all([
     listOrders(user.id, 3),
     db.orm.public.Order.where((o) => o.userId.eq(user.id))
-      .where((o) => o.status.neq("CANCELLED"))
+      .where((o) => o.status.in([...SALE_STATUSES]))
       .aggregate((a) => ({ orders: a.count(), spent: a.sum("total") })),
     db.orm.public.Address.where({ userId: user.id, isDefault: true }).first(),
   ]);

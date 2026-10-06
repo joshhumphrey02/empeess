@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 const STATUS_STYLE: Record<string, string> = {
   PENDING: "bg-amber-50 text-amber-800",
-  PAID: "bg-sky-50 text-sky-800",
+  PAID: "bg-brand-soft text-brand",
   PROCESSING: "bg-sky-50 text-sky-800",
   SHIPPED: "bg-indigo-50 text-indigo-800",
   DELIVERED: "bg-emerald-50 text-emerald-800",
@@ -13,10 +13,12 @@ const STATUS_STYLE: Record<string, string> = {
   REFUNDED: "bg-neutral-100 text-neutral-600",
 };
 
+const STATUS_LABEL: Record<string, string> = { PENDING: "awaiting payment", PROCESSING: "packing" };
+
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span className={cn("inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide", STATUS_STYLE[status])}>
-      {status.toLowerCase()}
+      {STATUS_LABEL[status] ?? status.toLowerCase()}
     </span>
   );
 }

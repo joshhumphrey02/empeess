@@ -1,4 +1,4 @@
-import { IconClock, IconCircleCheck, IconLoader, IconTruck } from "@tabler/icons-react";
+import { IconCash, IconCircleCheck, IconLoader, IconTruck } from "@tabler/icons-react";
 import Link from "next/link";
 
 import { AdminPagination, EmptyState, FilterTabs, PageHeader, rowEnter, SearchBox, SortHeader, StatCards, StatusPill, withQuery } from "@/components/admin/kit";
@@ -43,7 +43,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ord
       <PageHeader title="Orders" description="Move orders through fulfilment and keep customers up to date." />
       <StatCards
         items={[
-          stat("PENDING", "Pending", "Waiting for you", <IconClock />, "warning"),
+          stat("PAID", "Paid", "Ready to pack", <IconCash />, "warning"),
           stat("PROCESSING", "Processing", "Being packed", <IconLoader />, "default"),
           stat("SHIPPED", "Shipped", "On the way", <IconTruck />, "default"),
           stat("DELIVERED", "Delivered", "Completed", <IconCircleCheck />, "success"),

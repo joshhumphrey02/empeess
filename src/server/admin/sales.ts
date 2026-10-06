@@ -2,6 +2,7 @@ import "server-only";
 
 import { and, or } from "@prisma/orm-postgres/orm-client";
 
+import { isSale, SALE_STATUSES } from "@/lib/store-config";
 import { db } from "@/prisma/db";
 
 import { AdminInputError } from "./catalog-admin";
@@ -11,12 +12,14 @@ export const ORDER_STATUSES = ["PENDING", "PAID", "PROCESSING", "SHIPPED", "DELI
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 /** Which status an order may move to next. */
+// Payment moves PENDING → PAID (Paystack); refunds go through refundOrder,
+// so neither is a manual status change here.
 export const NEXT_STATUSES: Record<OrderStatus, OrderStatus[]> = {
-  PENDING: ["PAID", "PROCESSING", "CANCELLED"],
-  PAID: ["PROCESSING", "SHIPPED", "CANCELLED", "REFUNDED"],
-  PROCESSING: ["SHIPPED", "CANCELLED"],
+  PENDING: ["CANCELLED"],
+  PAID: ["PROCESSING", "SHIPPED"],
+  PROCESSING: ["SHIPPED"],
   SHIPPED: ["DELIVERED"],
-  DELIVERED: ["REFUNDED"],
+  DELIVERED: [],
   CANCELLED: [],
   REFUNDED: [],
 };
@@ -65,6 +68,7 @@ export async function adminGetOrder(orderNumber: string) {
   return db.orm.public.Order.where({ orderNumber })
     .include("items", (i) => i.orderBy((x) => x.id.asc()))
     .include("user", (u) => u.select("id", "email", "name"))
+    .include("payments", (p) => p.orderBy((x) => x.createdAt.desc()))
     .first();
 }
 
@@ -140,7 +144,7 @@ export async function adminListCustomers(opts: { q?: string; role?: string; page
       .include("orders", (o) =>
         o.combine({
           count: o.count(),
-          spent: o.where((x) => and(x.status.neq("CANCELLED"), x.status.neq("REFUNDED"))).sum("total"),
+          spent: o.where((x) => x.status.in([...SALE_STATUSES])).sum("total"),
         }),
       )
       .include("accounts", (a) => a.select("provider"))
@@ -169,7 +173,7 @@ export async function setCustomerRole(id: string, role: "ADMIN" | "CUSTOMER", ac
 // ─── Overview ────────────────────────────────────────────────────────────────
 
 const DAY = 24 * 60 * 60 * 1000;
-const countsAsSale = (status: string) => status !== "CANCELLED" && status !== "REFUNDED";
+const countsAsSale = isSale;
 
 /** Days of daily history sent to the overview chart (it slices 7/30/90 and the prior period). */
 export const HISTORY_DAYS = 180;
@@ -185,7 +189,7 @@ export async function overviewStats(days = 30) {
     db.orm.public.User.where({ role: "CUSTOMER" })
       .where((u) => u.createdAt.gte(new Date(now - days * DAY).toISOString()))
       .aggregate((a) => ({ count: a.count() })),
-    db.orm.public.OrderItem.where((i) => i.order.some((o) => and(o.status.neq("CANCELLED"), o.status.neq("REFUNDED"), o.createdAt.gte(new Date(now - days * DAY).toISOString()))))
+    db.orm.public.OrderItem.where((i) => i.order.some((o) => and(o.status.in([...SALE_STATUSES]), o.createdAt.gte(new Date(now - days * DAY).toISOString()))))
       .select("productName", "quantity", "lineTotal", "imageUrl")
       .all(),
     db.orm.public.ProductVariant.where((v) => and(v.isActive.eq(true), v.stock.lte(5)))
@@ -268,7 +272,7 @@ export async function overviewStats(days = 30) {
     lowStock,
     recent,
     recentCustomers,
-    pending: byStatus.find((s) => s.status === "PENDING")?.count ?? 0,
+    toFulfil: byStatus.find((s) => s.status === "PAID")?.count ?? 0,
   };
 }
 export type OverviewStats = Awaited<ReturnType<typeof overviewStats>>;

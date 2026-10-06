@@ -1,4 +1,4 @@
-import { IconCircleCheckFilled } from "@tabler/icons-react";
+import { IconAlertCircleFilled, IconCircleCheckFilled, IconClockHour4 } from "@tabler/icons-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,35 +7,55 @@ import { notFound } from "next/navigation";
 import { cancelMyOrder } from "@/app/actions/account";
 import { SubmitButton } from "@/components/store/form-bits";
 import { StatusBadge } from "@/components/store/order-bits";
+import { PayNow } from "@/components/store/pay-now";
 import { formatDate, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { requireUser } from "@/server/auth/session";
 import { getOrder } from "@/server/orders";
+import { expireStaleOrders, paymentDeadline } from "@/server/payments";
 
 export async function generateMetadata({ params }: PageProps<"/account/orders/[orderNumber]">): Promise<Metadata> {
   return { title: `Order ${(await params).orderNumber} — EMPEESS` };
 }
 
-const STEPS = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED"] as const;
+const STEPS = ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] as const;
+const STEP_LABEL: Record<(typeof STEPS)[number], string> = { PAID: "Paid", PROCESSING: "Packing", SHIPPED: "Shipped", DELIVERED: "Delivered" };
+
+const BANNERS = {
+  success: { tone: "bg-emerald-50 text-emerald-900", Icon: IconCircleCheckFilled, title: "Payment received. Thank you!", body: "Your order is confirmed. We've emailed you a receipt and will let you know when it ships." },
+  failed: { tone: "bg-red-50 text-red-900", Icon: IconAlertCircleFilled, title: "That payment didn't go through.", body: "Nothing was charged. You can try again below while your items are still reserved." },
+  pending: { tone: "bg-amber-50 text-amber-900", Icon: IconClockHour4, title: "We're confirming your payment.", body: "This usually takes a few seconds. Refresh this page in a moment." },
+  error: { tone: "bg-amber-50 text-amber-900", Icon: IconAlertCircleFilled, title: "Your order is placed, but we couldn't open the payment page.", body: "Your items are reserved. Use “Pay now” to try again." },
+} as const;
 
 export default async function OrderPage({ params, searchParams }: PageProps<"/account/orders/[orderNumber]">) {
   const [{ orderNumber }, query] = await Promise.all([params, searchParams]);
   const user = await requireUser(`/account/orders/${orderNumber}`);
+  await expireStaleOrders({ userId: user.id, limit: 5 }).catch(() => {});
   const order = await getOrder(user.id, orderNumber);
   if (!order) notFound();
 
-  const stepIndex =
-    order.status === "PAID" ? 0 : STEPS.indexOf(order.status as (typeof STEPS)[number]);
+  const stepIndex = STEPS.indexOf(order.status as (typeof STEPS)[number]);
+  const paid = order.payments.find((p) => p.status === "SUCCESS" || p.status === "REFUNDED");
+  const channel = (paid?.rawResponse as { channel?: string } | null)?.channel?.replace(/_/g, " ");
+  const bannerKey = String(query.payment ?? "");
+  // A "failed" banner is stale once the order is paid; a "success" one can't apply to an unpaid order.
+  const banner =
+    bannerKey in BANNERS && !(bannerKey === "failed" && order.status !== "PENDING") && !(bannerKey === "success" && order.status === "PENDING")
+      ? BANNERS[bannerKey as keyof typeof BANNERS]
+      : order.status === "PENDING" && bannerKey === "success"
+        ? BANNERS.pending
+        : null;
   const cancelled = order.status === "CANCELLED" || order.status === "REFUNDED";
 
   return (
     <div className="space-y-10">
-      {query.placed === "1" && (
-        <div role="status" className="flex items-start gap-3 rounded-3xl bg-emerald-50 p-5 text-emerald-900">
-          <IconCircleCheckFilled className="size-6 shrink-0" />
+      {banner && (
+        <div role="status" className={cn("flex items-start gap-3 rounded-3xl p-5", banner.tone)}>
+          <banner.Icon className="size-6 shrink-0" />
           <div>
-            <p className="font-medium">Thank you — your order is in.</p>
-            <p className="text-sm">We&apos;ll contact you on {order.shippingPhone} to arrange delivery. Pay when it arrives.</p>
+            <p className="font-medium">{banner.title}</p>
+            <p className="text-sm">{banner.body}</p>
           </div>
         </div>
       )}
@@ -51,14 +71,12 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/ac
         <StatusBadge status={order.status} />
       </header>
 
-      {!cancelled && (
+      {!cancelled && order.status !== "PENDING" && (
         <ol className="grid grid-cols-4 gap-2" aria-label="Order progress">
           {STEPS.map((step, i) => (
             <li key={step} className="space-y-2">
               <span className={cn("block h-1 rounded-full", i <= stepIndex ? "bg-neutral-950" : "bg-neutral-200")} />
-              <span className={cn("block text-xs capitalize", i <= stepIndex ? "text-neutral-950" : "text-neutral-400")}>
-                {step.toLowerCase()}
-              </span>
+              <span className={cn("block text-xs", i <= stepIndex ? "text-neutral-950" : "text-neutral-400")}>{STEP_LABEL[step]}</span>
             </li>
           ))}
         </ol>
@@ -99,7 +117,9 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/ac
             </div>
             <div className="flex justify-between text-neutral-600">
               <dt>Payment</dt>
-              <dd>Pay on delivery</dd>
+              <dd className="capitalize">
+                {order.status === "REFUNDED" ? "Refunded" : paid ? `Paid${channel ? ` · ${channel}` : ""}` : order.status === "PENDING" ? "Awaiting payment" : "Not paid"}
+              </dd>
             </div>
           </dl>
           <div className="rounded-3xl border border-neutral-200 p-5 text-sm">
@@ -115,6 +135,17 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/ac
             <p className="text-neutral-600">{order.shippingPhone}</p>
             {order.note && <p className="mt-3 text-neutral-600">Note: {order.note}</p>}
           </div>
+          {order.status === "PENDING" && (
+            <div className="rounded-3xl border border-brand/30 bg-brand-soft/50 p-5">
+              <p className="mb-1 font-medium">Complete your payment</p>
+              <p className="mb-4 text-sm text-neutral-600">Pay securely with card, bank transfer or USSD through Paystack.</p>
+              <PayNow
+                orderNumber={order.orderNumber}
+                amount={formatMoney(order.total, order.currency)}
+                deadline={paymentDeadline(order.createdAt).toISOString()}
+              />
+            </div>
+          )}
           {order.status === "PENDING" && (
             <form action={cancelMyOrder}>
               <input type="hidden" name="orderNumber" value={order.orderNumber} />

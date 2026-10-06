@@ -113,6 +113,7 @@ export async function listOrders(userId: string, limit?: number) {
 export async function getOrder(userId: string, orderNumber: string) {
   return db.orm.public.Order.where({ userId, orderNumber })
     .include("items", (i) => i.orderBy((x) => x.id.asc()))
+    .include("payments", (p) => p.select("status", "rawResponse", "paidAt").orderBy((x) => x.createdAt.desc()))
     .first();
 }
 
