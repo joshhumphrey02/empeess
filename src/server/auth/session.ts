@@ -19,6 +19,7 @@ export type SessionUser = {
   role: "CUSTOMER" | "ADMIN";
   avatarUrl: string | null;
   hasPassword: boolean;
+  emailVerified: boolean;
 };
 
 /**
@@ -76,6 +77,7 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
     role: u.role,
     avatarUrl: u.avatarUrl,
     hasPassword: u.passwordHash !== null,
+    emailVerified: u.emailVerifiedAt !== null,
   };
 });
 

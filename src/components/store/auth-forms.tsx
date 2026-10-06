@@ -1,9 +1,10 @@
 "use client";
 
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
+import Link from "next/link";
 import { useActionState } from "react";
 
-import { login, register } from "@/app/actions/auth";
+import { login, register, requestPasswordReset, resetPassword } from "@/app/actions/auth";
 import { initialFormState } from "@/app/actions/form-state";
 
 import { Field, FormMessage, SubmitButton } from "./form-bits";
@@ -27,6 +28,11 @@ export function LoginForm({ next }: { next: string }) {
       <input type="hidden" name="next" value={next} />
       <Field label="Email" name="email" type="email" required autoComplete="email" defaultValue={state.fields?.email} />
       <Field label="Password" name="password" type="password" required autoComplete="current-password" />
+      <p className="-mt-1 text-right text-sm">
+        <Link href="/forgot-password" className="text-neutral-600 underline-offset-4 hover:text-neutral-950 hover:underline">
+          Forgot password?
+        </Link>
+      </p>
       <FormMessage state={state} />
       <SubmitButton className="w-full">Sign in</SubmitButton>
     </form>
@@ -51,6 +57,31 @@ export function RegisterForm({ next }: { next: string }) {
       />
       <FormMessage state={state} />
       <SubmitButton className="w-full">Create account</SubmitButton>
+    </form>
+  );
+}
+
+export function ForgotPasswordForm() {
+  const [state, action] = useActionState(requestPasswordReset, initialFormState);
+  if (state.ok) return <FormMessage state={state} />;
+  return (
+    <form action={action} className="space-y-4">
+      <Field label="Email" name="email" type="email" required autoComplete="email" defaultValue={state.fields?.email} />
+      <FormMessage state={state} />
+      <SubmitButton className="w-full">Send reset link</SubmitButton>
+    </form>
+  );
+}
+
+export function ResetPasswordForm({ token }: { token: string }) {
+  const [state, action] = useActionState(resetPassword, initialFormState);
+  return (
+    <form action={action} className="space-y-4">
+      <input type="hidden" name="token" value={token} />
+      <Field label="New password" name="password" type="password" required minLength={8} autoComplete="new-password" hint="At least 8 characters." />
+      <Field label="Confirm new password" name="confirm" type="password" required minLength={8} autoComplete="new-password" />
+      <FormMessage state={state} />
+      <SubmitButton className="w-full">Save new password</SubmitButton>
     </form>
   );
 }
