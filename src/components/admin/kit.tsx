@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 import { FilterPills } from "./kit-client";
 
-export { StatCards, type StatItem } from "./kit-client";
+export { ClearFilters, SelectFilter, StatCards, type StatItem } from "./kit-client";
 
 export function PageHeader({
   title,
@@ -123,44 +123,85 @@ export function rowEnter(i: number) {
   };
 }
 
+/** Page numbers to show: first, last, and a window around the current page, with gaps as null. */
+function pageWindow(page: number, pageCount: number): (number | null)[] {
+  const pages = new Set([1, pageCount, page - 1, page, page + 1].filter((n) => n >= 1 && n <= pageCount));
+  const sorted = [...pages].sort((a, b) => a - b);
+  return sorted.flatMap((n, i) => (i > 0 && n - sorted[i - 1]! > 1 ? [null, n] : [n]));
+}
+
 export function AdminPagination({
   page,
   pageCount,
   total,
   hrefFor,
+  pageSize,
 }: {
   page: number;
   pageCount: number;
   total: number;
   hrefFor: (page: number) => string;
+  /** When given, the summary reads "26–50 of 78" instead of "78 results". */
+  pageSize?: number;
 }) {
+  const from = pageSize ? (page - 1) * pageSize + 1 : 0;
+  const to = pageSize ? Math.min(total, page * pageSize) : 0;
+  const arrow = "grid size-8 place-items-center rounded-lg border transition-colors hover:bg-muted";
   return (
-    <div className="flex items-center justify-between gap-4 border-t px-4 py-3 text-sm text-muted-foreground">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 text-sm text-muted-foreground">
       <span>
-        {total} result{total === 1 ? "" : "s"}
+        {pageSize && total > 0 ? (
+          <>
+            <span className="font-medium text-foreground tabular-nums">
+              {from}–{to}
+            </span>{" "}
+            of <span className="tabular-nums">{total}</span>
+          </>
+        ) : (
+          <>
+            {total} result{total === 1 ? "" : "s"}
+          </>
+        )}
       </span>
       {pageCount > 1 && (
-        <div className="flex items-center gap-2">
-          <span>
-            Page {page} of {pageCount}
-          </span>
+        <nav aria-label="Pagination" className="flex items-center gap-1">
           <Link
             href={hrefFor(page - 1)}
             aria-disabled={page <= 1}
             aria-label="Previous page"
-            className={cn("grid size-8 place-items-center rounded-lg border", page <= 1 && "pointer-events-none opacity-40")}
+            className={cn(arrow, page <= 1 && "pointer-events-none opacity-40")}
           >
             <IconChevronLeft className="size-4" />
           </Link>
+          {pageWindow(page, pageCount).map((n, i) =>
+            n === null ? (
+              <span key={`gap-${i}`} className="px-1" aria-hidden>
+                …
+              </span>
+            ) : (
+              <Link
+                key={n}
+                href={hrefFor(n)}
+                aria-label={`Page ${n}`}
+                aria-current={n === page ? "page" : undefined}
+                className={cn(
+                  "grid h-8 min-w-8 place-items-center rounded-lg px-2 tabular-nums transition-colors",
+                  n === page ? "bg-primary font-medium text-primary-foreground" : "hover:bg-muted hover:text-foreground",
+                )}
+              >
+                {n}
+              </Link>
+            ),
+          )}
           <Link
             href={hrefFor(page + 1)}
             aria-disabled={page >= pageCount}
             aria-label="Next page"
-            className={cn("grid size-8 place-items-center rounded-lg border", page >= pageCount && "pointer-events-none opacity-40")}
+            className={cn(arrow, page >= pageCount && "pointer-events-none opacity-40")}
           >
             <IconChevronRight className="size-4" />
           </Link>
-        </div>
+        </nav>
       )}
     </div>
   );

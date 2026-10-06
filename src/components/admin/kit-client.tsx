@@ -1,10 +1,14 @@
 "use client";
 
+import { IconFilterOff } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { useId, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useId, useState, useTransition } from "react";
 
+import { Button } from "@/components/ui/button";
 import { NumberTicker, type TickerFormat } from "@/components/ui/number-ticker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 /** Filter links with a pill that slides to the active option. */
@@ -122,5 +126,84 @@ export function StatCards({ items, className }: { items: StatItem[]; className?:
         );
       })}
     </div>
+  );
+}
+
+const ALL = "__all";
+
+/**
+ * A dropdown filter bound to one search param. Changing it navigates with the
+ * param updated and the page reset, keeping every other filter.
+ */
+export function SelectFilter({
+  param,
+  label,
+  allLabel,
+  options,
+}: {
+  param: string;
+  label: string;
+  allLabel: string;
+  options: { value: string; label: string }[];
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const [pending, startTransition] = useTransition();
+  const value = params.get(param) ?? ALL;
+  const items = [{ value: ALL, label: allLabel }, ...options];
+
+  return (
+    <Select
+      items={items}
+      value={value}
+      onValueChange={(next) => {
+        const sp = new URLSearchParams(params);
+        if (!next || next === ALL) sp.delete(param);
+        else sp.set(param, String(next));
+        sp.delete("page");
+        const qs = sp.toString();
+        startTransition(() => router.push(qs ? `${pathname}?${qs}` : pathname));
+      }}
+    >
+      <SelectTrigger
+        aria-label={label}
+        className={cn("h-9 min-w-36 bg-card", value !== ALL && "border-brand/60 bg-brand-soft/50 text-brand", pending && "opacity-60")}
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {items.map((o) => (
+          <SelectItem key={o.value} value={o.value}>
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+/** Clears the listed params (and the page); shown only while one is set. */
+export function ClearFilters({ params: names }: { params: string[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const active = names.filter((n) => params.has(n));
+  if (!active.length) return null;
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-9"
+      onClick={() => {
+        const sp = new URLSearchParams(params);
+        for (const n of names) sp.delete(n);
+        sp.delete("page");
+        const qs = sp.toString();
+        router.push(qs ? `${pathname}?${qs}` : pathname);
+      }}
+    >
+      <IconFilterOff /> Clear {active.length > 1 ? `${active.length} filters` : "filter"}
+    </Button>
   );
 }

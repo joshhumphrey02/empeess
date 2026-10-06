@@ -98,19 +98,64 @@ export async function inventorySummary() {
   return { variants: all.count, units: all.units ?? 0, low: low.count, out: out.count };
 }
 
-export async function adminListInventory(opts: { q?: string; filter?: string }) {
-  let variants = db.orm.public.ProductVariant.where((v) => v.id.isNotNull());
-  if (opts.q) {
-    const term = likeTerm(opts.q);
-    variants = variants.where((v) => or(v.sku.ilike(term), v.product.some((p) => p.name.ilike(term))));
-  }
-  if (opts.filter === "low") variants = variants.where((v) => and(v.stock.gt(0), v.stock.lte(5)));
-  if (opts.filter === "out") variants = variants.where((v) => v.stock.eq(0));
-  return variants
-    .orderBy([(v) => v.stock.asc(), (v) => v.sku.asc()])
-    .include("product", (p) => p.select("id", "name", "status"))
-    .limit(200)
-    .all();
+export const INVENTORY_PAGE_SIZE = 25;
+const PRODUCT_STATUSES = ["ACTIVE", "DRAFT", "ARCHIVED"] as const;
+
+/**
+ * One page of variants with every inventory filter applied.
+ * stock: "low" (1–5), "out" (0) or "in" (more than 5); status: the product's;
+ * visibility: "on"/"off" for the variant itself; sort: "stock" | "sku", "-" for descending.
+ */
+export async function adminListInventory(opts: {
+  q?: string;
+  stock?: string;
+  category?: string;
+  status?: string;
+  visibility?: string;
+  sort?: string;
+  page?: number;
+}) {
+  const page = Math.max(1, opts.page ?? 1);
+  const filtered = () => {
+    let variants = db.orm.public.ProductVariant.where((v) => v.id.isNotNull());
+    if (opts.q) {
+      const term = likeTerm(opts.q);
+      variants = variants.where((v) => or(v.sku.ilike(term), v.product.some((p) => p.name.ilike(term))));
+    }
+    if (opts.stock === "low") variants = variants.where((v) => and(v.stock.gt(0), v.stock.lte(5)));
+    if (opts.stock === "out") variants = variants.where((v) => v.stock.eq(0));
+    if (opts.stock === "in") variants = variants.where((v) => v.stock.gt(5));
+    if (opts.category) {
+      const categoryId = opts.category;
+      variants = variants.where((v) => v.product.some((p) => p.categoryId.eq(categoryId)));
+    }
+    if (opts.status && (PRODUCT_STATUSES as readonly string[]).includes(opts.status)) {
+      const status = opts.status as (typeof PRODUCT_STATUSES)[number];
+      variants = variants.where((v) => v.product.some((p) => p.status.eq(status)));
+    }
+    if (opts.visibility === "on") variants = variants.where((v) => v.isActive.eq(true));
+    if (opts.visibility === "off") variants = variants.where((v) => v.isActive.eq(false));
+    return variants;
+  };
+
+  const desc = opts.sort?.startsWith("-") ?? false;
+  const key = opts.sort?.replace(/^-/, "") ?? "stock";
+  const [variants, { count }] = await Promise.all([
+    filtered()
+      .orderBy([
+        (v) => {
+          const col = key === "sku" ? v.sku : v.stock;
+          return desc ? col.desc() : col.asc();
+        },
+        (v) => v.sku.asc(),
+      ])
+      .include("product", (p) => p.select("id", "name", "status").include("category", (c) => c.select("name")))
+      .limit(INVENTORY_PAGE_SIZE)
+      .offset((page - 1) * INVENTORY_PAGE_SIZE)
+      .all(),
+    filtered().aggregate((a) => ({ count: a.count() })),
+  ]);
+  return { variants, total: count, page, pageSize: INVENTORY_PAGE_SIZE, pageCount: Math.max(1, Math.ceil(count / INVENTORY_PAGE_SIZE)) };
 }
 
 export async function setStock(variantId: string, stock: number) {

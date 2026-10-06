@@ -58,7 +58,7 @@ export async function adminListOrders(opts: { q?: string; status?: string; page?
       .all(),
     filtered().aggregate((a) => ({ count: a.count() })),
   ]);
-  return { orders, total: count, page, pageCount: Math.max(1, Math.ceil(count / size)) };
+  return { orders, total: count, page, pageSize: size, pageCount: Math.max(1, Math.ceil(count / size)) };
 }
 
 export async function adminGetOrder(orderNumber: string) {
@@ -149,7 +149,7 @@ export async function adminListCustomers(opts: { q?: string; role?: string; page
       .all(),
     filtered().aggregate((a) => ({ count: a.count() })),
   ]);
-  return { users, total: count, page, pageCount: Math.max(1, Math.ceil(count / size)) };
+  return { users, total: count, page, pageSize: size, pageCount: Math.max(1, Math.ceil(count / size)) };
 }
 
 export async function adminGetCustomer(id: string) {

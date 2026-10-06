@@ -64,7 +64,7 @@ export default async function AdminOverview() {
               <Link href="/admin/orders" className={buttonVariants({ variant: "outline" })}>
                 <IconReceipt /> Orders
               </Link>
-              <Link href="/admin/inventory?filter=low" className={buttonVariants({ variant: "ghost" })}>
+              <Link href="/admin/inventory?stock=low" className={buttonVariants({ variant: "ghost" })}>
                 <IconPackages /> Inventory
               </Link>
             </div>
@@ -231,7 +231,7 @@ export default async function AdminOverview() {
             ) : (
               <EmptyState title="Everything is well stocked" />
             )}
-            <Link href="/admin/inventory?filter=low" className="group mt-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+            <Link href="/admin/inventory?stock=low" className="group mt-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               Manage inventory <IconArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
             </Link>
           </CardContent>

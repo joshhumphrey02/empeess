@@ -84,7 +84,7 @@ export default async function CustomersPage({ searchParams }: PageProps<"/admin/
             </TableBody>
           </Table>
         )}
-        <AdminPagination page={result.page} pageCount={result.pageCount} total={result.total} hrefFor={(n) => href({ page: n > 1 ? n : undefined })} />
+        <AdminPagination page={result.page} pageCount={result.pageCount} total={result.total} pageSize={result.pageSize} hrefFor={(n) => href({ page: n > 1 ? n : undefined })} />
       </Card>
     </>
   );

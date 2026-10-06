@@ -80,6 +80,7 @@ export async function adminListProducts(opts: {
     })),
     total: count,
     page,
+    pageSize: ADMIN_PAGE_SIZE,
     pageCount: Math.max(1, Math.ceil(count / ADMIN_PAGE_SIZE)),
   };
 }
