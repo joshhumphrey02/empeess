@@ -12,7 +12,7 @@ export default async function AccountLayout({ children }: LayoutProps<"/account"
       <p className="mt-2 text-sm text-neutral-500">{user.email}</p>
       <div className="mt-10 grid gap-10 lg:grid-cols-[220px_1fr]">
         <aside className="lg:sticky lg:top-32 lg:self-start">
-          <AccountNav />
+          <AccountNav isAdmin={user.role === "ADMIN"} />
         </aside>
         <div className="min-w-0">{children}</div>
       </div>

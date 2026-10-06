@@ -13,7 +13,7 @@ const links = [
   { href: "/account/settings", label: "Settings" },
 ];
 
-export function AccountNav() {
+export function AccountNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Account" className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0">
@@ -35,6 +35,16 @@ export function AccountNav() {
             </li>
           );
         })}
+        {isAdmin && (
+          <li>
+            <Link
+              href="/admin"
+              className="flex h-10 items-center rounded-full px-4 text-sm font-medium text-brand hover:bg-neutral-100"
+            >
+              Dashboard →
+            </Link>
+          </li>
+        )}
         <li>
           <form action={logout}>
             <button type="submit" className="flex h-10 items-center rounded-full px-4 text-sm text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950">

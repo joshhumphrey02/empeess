@@ -1,0 +1,125 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+
+import { assertAdmin } from "@/server/admin/guard";
+import {
+  AdminInputError,
+  deleteCategory,
+  deleteReview,
+  moveCategory,
+  saveCategory,
+  setStock,
+  type CategoryInput,
+} from "@/server/admin/catalog-admin";
+import {
+  deleteProduct,
+  ProductInputError,
+  saveProduct,
+  setProductStatus,
+  type ProductInput,
+  type ProductStatus,
+} from "@/server/admin/products";
+import { setCustomerRole, updateOrderStatus, type OrderStatus } from "@/server/admin/sales";
+
+export type ActionResult<T = undefined> = { ok: true; data?: T; message?: string } | { ok: false; error: string };
+
+/** Admin check + known-error → message mapping, shared by every action. */
+async function run<T>(fn: (adminId: string) => Promise<T>, message?: string): Promise<ActionResult<T>> {
+  let adminId: string;
+  try {
+    adminId = (await assertAdmin()).id;
+  } catch {
+    return { ok: false, error: "Your session has expired or you're not an admin. Sign in again." };
+  }
+  try {
+    const data = await fn(adminId);
+    return { ok: true, data, message };
+  } catch (error) {
+    if (error instanceof ProductInputError || error instanceof AdminInputError) return { ok: false, error: error.message };
+    console.error(error);
+    return { ok: false, error: "Something went wrong. Please try again." };
+  }
+}
+
+// Storefront pages read the catalog too, so refresh everything that shows it.
+const refreshCatalog = () => revalidatePath("/", "layout");
+
+// ─── Products ────────────────────────────────────────────────────────────────
+
+export async function saveProductAction(input: ProductInput) {
+  return run(async () => {
+    const id = await saveProduct(input);
+    refreshCatalog();
+    return id;
+  }, input.id ? "Product updated." : "Product created.");
+}
+
+export async function deleteProductAction(id: string) {
+  return run(async () => {
+    await deleteProduct(id);
+    refreshCatalog();
+  }, "Product deleted.");
+}
+
+export async function setProductStatusAction(id: string, status: ProductStatus) {
+  return run(async () => {
+    await setProductStatus(id, status);
+    refreshCatalog();
+  }, `Product ${status === "ACTIVE" ? "published" : status === "ARCHIVED" ? "archived" : "moved to drafts"}.`);
+}
+
+// ─── Categories ──────────────────────────────────────────────────────────────
+
+export async function saveCategoryAction(input: CategoryInput) {
+  return run(async () => {
+    await saveCategory(input);
+    refreshCatalog();
+  }, input.id ? "Category updated." : "Category created.");
+}
+
+export async function deleteCategoryAction(id: string) {
+  return run(async () => {
+    await deleteCategory(id);
+    refreshCatalog();
+  }, "Category deleted.");
+}
+
+export async function moveCategoryAction(id: string, direction: "up" | "down") {
+  return run(async () => {
+    await moveCategory(id, direction);
+    refreshCatalog();
+  });
+}
+
+// ─── Inventory ───────────────────────────────────────────────────────────────
+
+export async function setStockAction(variantId: string, stock: number) {
+  return run(async () => {
+    await setStock(variantId, stock);
+    refreshCatalog();
+  }, "Stock updated.");
+}
+
+// ─── Orders / customers / reviews ────────────────────────────────────────────
+
+export async function updateOrderStatusAction(orderNumber: string, status: OrderStatus) {
+  return run(async () => {
+    await updateOrderStatus(orderNumber, status);
+    revalidatePath("/", "layout");
+  }, `Order marked ${status.toLowerCase()}.`);
+}
+
+export async function setCustomerRoleAction(userId: string, role: "ADMIN" | "CUSTOMER") {
+  return run(async (adminId) => {
+    await setCustomerRole(userId, role, adminId);
+    revalidatePath("/admin", "layout");
+  }, role === "ADMIN" ? "Admin access granted." : "Admin access removed.");
+}
+
+export async function deleteReviewAction(id: string) {
+  return run(async () => {
+    await deleteReview(id);
+    refreshCatalog();
+  }, "Review deleted.");
+}
