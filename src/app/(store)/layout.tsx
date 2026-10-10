@@ -2,6 +2,7 @@ import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
 import { StoreToaster } from "@/components/store/store-toaster";
 import { WishlistProvider } from "@/components/store/wishlist";
+import { isTeamMember } from "@/lib/permissions";
 import { getCurrentUser } from "@/server/auth/session";
 import { getCartCount } from "@/server/cart";
 import { getSiteContent } from "@/server/site-content";
@@ -20,6 +21,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
         solid
         cartCount={cartCount}
         signedIn={Boolean(user)}
+        showDashboard={Boolean(user && isTeamMember(user))}
         menuImage={{ src: content.hero.src, alt: content.hero.imageAlt }}
       />
       <main className="flex-1 bg-white pb-24 pt-28 sm:pt-32">{children}</main>

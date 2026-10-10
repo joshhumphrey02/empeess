@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SmoothScroll } from "@/components/landing/smooth-scroll";
 import { Testimonials } from "@/components/landing/testimonials";
+import { isTeamMember } from "@/lib/permissions";
 import { getCurrentUser } from "@/server/auth/session";
 import { getCartCount } from "@/server/cart";
 import { getSiteContent } from "@/server/site-content";
@@ -18,6 +19,7 @@ export default async function Home() {
       <SiteHeader
         cartCount={cartCount}
         signedIn={Boolean(user)}
+        showDashboard={Boolean(user && isTeamMember(user))}
         menuImage={{ src: content.hero.src, alt: content.hero.imageAlt }}
       />
       <main className="flex-1 bg-white">

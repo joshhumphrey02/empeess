@@ -63,6 +63,7 @@ export function SiteHeader({
   signedIn = false,
   solid = false,
   menuImage = { src: hero.src, alt: hero.imageAlt },
+  showDashboard = false,
 }: {
   cartCount?: number;
   signedIn?: boolean;
@@ -70,7 +71,10 @@ export function SiteHeader({
   solid?: boolean;
   /** Photo shown in the open menu; defaults to the hero photo. */
   menuImage?: { src: string; alt: string };
+  /** Admins and staff get a dashboard link at the end of the menu. */
+  showDashboard?: boolean;
 }) {
+  const links = showDashboard ? [...nav.links, { label: "Dashboard", href: "/admin" }] : nav.links;
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -172,7 +176,7 @@ export function SiteHeader({
             <div className="mx-auto grid min-h-full max-w-360 items-center gap-10 px-6 pb-12 pt-32 sm:px-12 lg:grid-cols-[1fr_380px]">
               <nav aria-label="Main">
                 <ul>
-                  {nav.links.map((link, i) => (
+                  {links.map((link, i) => (
                     <li key={link.href} className="overflow-hidden">
                       <motion.div
                         initial={{ y: "110%" }}
