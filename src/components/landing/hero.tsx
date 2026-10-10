@@ -129,17 +129,17 @@ export function Hero() {
           </h1>
           <p
             aria-hidden
-            className="text-[clamp(4.25rem,9.6vw,10.5rem)] font-medium leading-[0.86] tracking-[-0.055em] text-neutral-950"
+            className="text-[15vw] font-medium leading-[0.86] sm:text-[clamp(4.25rem,9.6vw,10.5rem)] tracking-[-0.055em] text-neutral-950"
           >
             <HeadlineLine text={hero.lineA[0]} className="block" />
             <HeadlineLine text={hero.lineA[1]} className="block" />
           </p>
-          <span data-hero-fade className="invisible mt-8 text-xs tracking-wide text-neutral-800 lg:mt-16">
+          <span data-hero-fade className="invisible mt-16 hidden text-xs tracking-wide text-neutral-800 lg:block">
             {hero.tagLeft}
           </span>
           <p
             data-hero-fade
-            className="invisible mt-8 max-w-60 text-sm leading-relaxed text-neutral-700 lg:ml-[30%] lg:mt-20"
+            className="invisible ml-[30%] mt-20 hidden max-w-60 text-sm leading-relaxed text-neutral-700 lg:block"
           >
             {hero.blurb}
           </p>
@@ -152,7 +152,7 @@ export function Hero() {
         </div>
 
         {/* Centre photo */}
-        <div className="relative order-last mt-10 h-[70svh] lg:order-none lg:mt-0 lg:h-auto">
+        <div className="relative order-last mt-8 h-[60svh] lg:order-none lg:mt-0 lg:h-auto">
           <div
             data-hero-photo
             className="invisible absolute inset-x-0 bottom-0 top-0 overflow-hidden lg:top-6"
@@ -171,7 +171,7 @@ export function Hero() {
         </div>
 
         {/* Right column */}
-        <div data-hero-right className="relative z-10 flex flex-col pt-6 lg:items-end lg:pt-10">
+        <div data-hero-right className="relative z-10 flex flex-col lg:items-end lg:pt-10">
           <span
             data-hero-fade
             className="invisible order-first mb-6 hidden whitespace-pre-line text-right text-xs tracking-wide text-neutral-800 lg:block"
@@ -180,49 +180,59 @@ export function Hero() {
           </span>
           <p
             aria-hidden
-            className="text-[clamp(4.25rem,9.6vw,10.5rem)] font-medium leading-[0.86] tracking-[-0.055em] text-neutral-950 lg:text-right"
+            className="text-[15vw] font-medium leading-[0.86] sm:text-[clamp(4.25rem,9.6vw,10.5rem)] tracking-[-0.055em] text-neutral-950 lg:text-right"
           >
             <HeadlineLine text={hero.lineB[0]} className="block lg:pr-[22%]" />
             <HeadlineLine text={hero.lineB[1]} className="block" />
           </p>
 
-          <div className="mt-10 flex items-center lg:mr-[22%] lg:mt-14">
-            {[images.hoodieMono, images.hoodieBlack].map((src, i) => (
-              <span
-                key={src}
-                data-hero-pop
-                className="relative -ml-3 size-12 overflow-hidden rounded-full border-2 border-canvas first:ml-0"
-                style={{ zIndex: i }}
-              >
-                <Image src={src} alt="" fill sizes="48px" className="object-cover" />
+          {/* Phones get one short line under the full headline; the longer
+              blurb sits in the left column from lg up. */}
+          <p data-hero-fade className="invisible mt-5 max-w-64 text-sm leading-relaxed text-neutral-700 lg:hidden">
+            {hero.blurbShort}
+          </p>
+
+          {/* One row on phones (avatars left, stat right); from lg the
+              children drop back into the column. */}
+          <div className="mt-6 flex items-end justify-between lg:contents">
+            <div className="flex items-center lg:mr-[22%] lg:mt-14">
+              {[images.hoodieMono, images.hoodieBlack].map((src, i) => (
+                <span
+                  key={src}
+                  data-hero-pop
+                  className="relative -ml-3 size-12 overflow-hidden rounded-full border-2 border-canvas first:ml-0"
+                  style={{ zIndex: i }}
+                >
+                  <Image src={src} alt="" fill sizes="48px" className="object-cover" />
+                </span>
+              ))}
+              {/* GSAP pops the wrapper; the link keeps its own CSS hover
+                  transition. Putting both on one element makes the CSS
+                  transition fight GSAP and the button can stick at scale 0. */}
+              <span data-hero-pop className="relative z-10 -ml-3">
+                <Link
+                  href="/shop"
+                  aria-label="Shop the collection"
+                  className="grid size-12 place-items-center rounded-full bg-brand text-white transition-transform duration-300 hover:rotate-90"
+                >
+                  <IconPlus className="size-5" stroke={1.75} />
+                </Link>
               </span>
-            ))}
-            {/* GSAP pops the wrapper; the link keeps its own CSS hover
-                transition. Putting both on one element makes the CSS
-                transition fight GSAP and the button can stick at scale 0. */}
-            <span data-hero-pop className="relative z-10 -ml-3">
-              <Link
-                href="/shop"
-                aria-label="Shop the collection"
-                className="grid size-12 place-items-center rounded-full bg-brand text-white transition-transform duration-300 hover:rotate-90"
-              >
-                <IconPlus className="size-5" stroke={1.75} />
-              </Link>
+            </div>
+
+            <span data-hero-pop className="mt-12 hidden lg:mr-[22%] lg:block">
+              <Flower className="size-7" />
             </span>
-          </div>
 
-          <span data-hero-pop className="mt-12 hidden lg:mr-[22%] lg:block">
-            <Flower className="size-7" />
-          </span>
-
-          <div data-hero-fade className="invisible mt-10 pb-10 lg:mt-auto lg:mr-[3%] lg:text-left">
-            <p className="text-4xl font-medium tracking-tight text-neutral-950">
-              <span data-hero-count>{hero.stat.value}</span>
-              {hero.stat.suffix}
-            </p>
-            <p className="mt-1 text-[11px] tracking-wide text-neutral-700">
-              {hero.stat.label}
-            </p>
+            <div data-hero-fade className="invisible text-right lg:mt-auto lg:mr-[3%] lg:pb-10 lg:text-left">
+              <p className="text-3xl font-medium tracking-tight text-neutral-950 lg:text-4xl">
+                <span data-hero-count>{hero.stat.value}</span>
+                {hero.stat.suffix}
+              </p>
+              <p className="mt-1 text-[11px] tracking-wide text-neutral-700">
+                {hero.stat.label}
+              </p>
+            </div>
           </div>
         </div>
       </div>

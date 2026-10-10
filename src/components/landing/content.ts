@@ -46,6 +46,7 @@ export const hero = {
   tagRight: "//STYLED FOR\nLIFE.",
   blurb:
     "Explore curated collections, exclusive drops and everyday essentials, all thoughtfully designed in one stylish shopping destination.",
+  blurbShort: "Curated drops and everyday essentials, all in one place.",
   collection: "/ New\nCollection 2026",
   stat: { value: 12, suffix: "K+", label: "PEOPLE WE DRESS" },
 };
