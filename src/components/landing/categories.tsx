@@ -27,7 +27,9 @@ export function Categories() {
         const st = ScrollTrigger.create({
           trigger: root.current,
           start: "top top",
-          end: `+=${items.length * 55}%`,
+          // A full screen of scrolling per category, so each photo has time
+          // to finish its reveal before the next one starts.
+          end: `+=${items.length * 100}%`,
           pin: true,
           anticipatePin: 1,
           onUpdate(self) {
