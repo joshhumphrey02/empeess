@@ -165,6 +165,17 @@ export function SiteFooter() {
           <p className="flex items-center gap-2">
             <BrandMark className="size-6" />© {new Date().getFullYear()} {nav.brand}. All rights reserved.
           </p>
+          <p>
+            Built by{" "}
+            <a
+              href="https://nerdstackgrp.com"
+              target="_blank"
+              rel="noopener"
+              className="text-white underline-offset-4 hover:underline"
+            >
+              Nerdstack Technologies
+            </a>
+          </p>
         </div>
       </div>
     </footer>
