@@ -41,7 +41,7 @@ export async function NotFoundContent({ standalone = false }: { standalone?: boo
         </FadeUp>
 
         <FadeUp delay={0.65} className="mt-8 w-full max-w-md">
-          <form action="/search" method="get" role="search" className="flex items-center gap-2 rounded-full border border-neutral-300 bg-white p-1.5 focus-within:border-neutral-950">
+          <form action="/shop" method="get" role="search" className="flex items-center gap-2 rounded-full border border-neutral-300 bg-white p-1.5 focus-within:border-neutral-950">
             <label htmlFor="nf-search" className="sr-only">
               Search products
             </label>

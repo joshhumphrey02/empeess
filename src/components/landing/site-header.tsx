@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { BrandLogo } from "@/components/brand";
+import { SearchOverlay } from "@/components/store/search-overlay";
 import { cn } from "@/lib/utils";
 
 import { hero, images, nav } from "./content";
@@ -71,6 +72,7 @@ export function SiteHeader({
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
+  const [searching, setSearching] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (y) => {
     const prev = scrollY.getPrevious() ?? 0;
@@ -127,7 +129,13 @@ export function SiteHeader({
 
           <div className="flex items-center gap-2">
             <span className="hidden sm:block">
-              <IconCircle label="Search" href="/search">
+              <IconCircle
+                label="Search"
+                onClick={() => {
+                  setOpen(false);
+                  setSearching(true);
+                }}
+              >
                 <IconSearch className="size-5" stroke={1.5} />
               </IconCircle>
             </span>
@@ -144,6 +152,8 @@ export function SiteHeader({
           </div>
         </div>
       </motion.header>
+
+      <SearchOverlay open={searching} onClose={() => setSearching(false)} />
 
       <AnimatePresence>
         {open && (

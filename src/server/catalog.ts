@@ -209,7 +209,7 @@ export async function relatedProducts(productId: string, categoryId: string, lim
   return rows.map(toCard);
 }
 
-/** Parse shop/search URL params into a validated query. */
+/** Parse shop URL params into a validated query. */
 export function parseProductQuery(params: Record<string, string | string[] | undefined>): ProductQuery {
   const one = (k: string) => {
     const v = params[k];

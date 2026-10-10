@@ -3,10 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  // Search is an overlay now; old /search?q=… links land on the filtered shop.
+  redirects: async () => [{ source: "/search", destination: "/shop", permanent: true }],
   images: {
     qualities: [75, 90],
     remotePatterns: [
-      // Ark CDN — permanent delivery URLs for product images.
+      // Ark CDN: permanent delivery URLs for product images.
       {
         protocol: "https",
         hostname: "cdn.nerdstackgrp.com",

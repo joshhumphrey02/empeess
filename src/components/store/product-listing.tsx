@@ -9,7 +9,7 @@ import { ShopToolbar } from "./shop-toolbar";
 type Params = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
-/** Filter toolbar + product grid + pagination, shared by shop, category and search. */
+/** Filter toolbar + product grid + pagination, shared by the shop and category pages. */
 export async function ProductListing({
   basePath,
   params,
@@ -44,7 +44,10 @@ export async function ProductListing({
         {query.q && (
           <>
             {" "}
-            for “<span className="text-neutral-950">{query.q}</span>”
+            for “<span className="text-neutral-950">{query.q}</span>”.{" "}
+            <Link href={basePath} className="underline underline-offset-4 hover:text-neutral-950">
+              Clear search
+            </Link>
           </>
         )}
       </p>
