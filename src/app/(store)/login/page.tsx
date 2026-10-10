@@ -6,7 +6,7 @@ import { GoogleButton, LoginForm } from "@/components/store/auth-forms";
 import { AUTH_ERRORS, AuthShell } from "@/components/store/auth-shell";
 import { getCurrentUser, safeNext } from "@/server/auth/session";
 
-export const metadata: Metadata = { title: "Sign in — EMPEESS" };
+export const metadata: Metadata = { title: "Sign in | EMPEESS" };
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const params = await searchParams;

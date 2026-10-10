@@ -60,7 +60,7 @@ export function Categories() {
           </PillLink>
         </div>
 
-        {/* Photo — wipes to the active category */}
+        {/* Photo: wipes to the active category */}
         <div className="relative col-span-12 aspect-4/5 sm:col-span-7 lg:col-span-4 lg:col-start-4 lg:h-[62vh] lg:aspect-auto">
           <div className="chamfer absolute inset-0 overflow-hidden bg-neutral-100" style={{ ["--cut" as string]: "16%" }}>
             <AnimatePresence initial={false}>

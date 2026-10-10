@@ -230,7 +230,7 @@ const ORDER_TONE: Record<string, string> = {
   CUSTOMER: "bg-muted text-muted-foreground",
 };
 
-/** Status pill — always shows the word, never colour alone. */
+/** Status pill: always shows the word, never colour alone. */
 export function StatusPill({ status }: { status: string }) {
   return (
     <Badge variant="secondary" className={cn("gap-1.5 border-0 capitalize", ORDER_TONE[status])}>

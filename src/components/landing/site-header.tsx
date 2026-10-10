@@ -198,7 +198,7 @@ export function SiteHeader({
                   sizes="380px"
                 />
                 <p className="mt-4 text-sm text-neutral-600">
-                  New collection 2026 — clothes, joggers, hoodies & perfumes.
+                  New collection 2026: clothes, joggers, hoodies & perfumes.
                 </p>
               </motion.div>
             </div>

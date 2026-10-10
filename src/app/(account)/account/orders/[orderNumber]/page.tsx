@@ -15,7 +15,7 @@ import { getOrder } from "@/server/orders";
 import { expireStaleOrders, paymentDeadline } from "@/server/payments";
 
 export async function generateMetadata({ params }: PageProps<"/account/orders/[orderNumber]">): Promise<Metadata> {
-  return { title: `Order ${(await params).orderNumber} — EMPEESS` };
+  return { title: `Order ${(await params).orderNumber} | EMPEESS` };
 }
 
 const STEPS = ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] as const;

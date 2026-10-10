@@ -247,7 +247,7 @@ html.lenis body {
 }
 
 @utility chamfer {
-  /* Cut top-left and bottom-right corners — the signature image frame. */
+  /* Cut top-left and bottom-right corners: the signature image frame. */
   clip-path: polygon(
     var(--cut, 18%) 0,
     100% 0,

@@ -5,7 +5,7 @@ import { WishlistEmpty } from "@/components/store/wishlist";
 import { requireUser } from "@/server/auth/session";
 import { wishlistProducts } from "@/server/wishlist";
 
-export const metadata: Metadata = { title: "Wishlist — EMPEESS" };
+export const metadata: Metadata = { title: "Wishlist | EMPEESS" };
 
 export default async function WishlistPage() {
   const user = await requireUser("/account/wishlist");

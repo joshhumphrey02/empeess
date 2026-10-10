@@ -75,7 +75,7 @@ export default async function CustomerPage({ params }: PageProps<"/admin/custome
                 {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt="" />}
                 <AvatarFallback className="bg-brand-soft text-lg font-semibold text-brand">{(user.name ?? user.email).slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
-              <p className="mt-1 font-medium">{user.name ?? "—"}</p>
+              <p className="mt-1 font-medium">{user.name ?? "-"}</p>
               <StatusPill status={user.role} />
             </div>
             <dl className="grid grid-cols-2 gap-3 px-(--card-spacing) text-sm">

@@ -20,7 +20,7 @@ export async function addToCart(_prev: FormState, form: FormData): Promise<FormS
     refresh();
     return {
       ok: true,
-      message: capped ? `Added — limited to ${inCart} by available stock.` : "Added to cart.",
+      message: capped ? `Added: limited to ${inCart} by available stock.` : "Added to cart.",
       fields: { quantity: String(capped ? inCart : quantity) },
     };
   } catch (error) {

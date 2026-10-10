@@ -5,7 +5,7 @@ import { requireUser } from "@/server/auth/session";
 import { listOrders } from "@/server/orders";
 import { expireStaleOrders } from "@/server/payments";
 
-export const metadata: Metadata = { title: "Orders — EMPEESS" };
+export const metadata: Metadata = { title: "Orders | EMPEESS" };
 
 export default async function OrdersPage() {
   const user = await requireUser("/account/orders");

@@ -9,7 +9,7 @@ import { formatMoney } from "@/lib/format";
 import { FREE_SHIPPING_THRESHOLD, MAX_QTY_PER_LINE } from "@/lib/store-config";
 import { getCart } from "@/server/cart";
 
-export const metadata: Metadata = { title: "Cart — EMPEESS" };
+export const metadata: Metadata = { title: "Cart | EMPEESS" };
 
 export default async function CartPage() {
   const cart = await getCart();
@@ -72,7 +72,7 @@ export default async function CartPage() {
                   <p role="alert" className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
                     {line.problem === "unavailable"
                       ? "This option is no longer available. Remove it to continue."
-                      : `Only ${line.available} left — reduce the quantity to continue.`}
+                      : `Only ${line.available} left. Reduce the quantity to continue.`}
                   </p>
                 )}
 

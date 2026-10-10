@@ -15,9 +15,9 @@ import { getProductBySlug, relatedProducts } from "@/server/catalog";
 
 export async function generateMetadata({ params }: PageProps<"/product/[slug]">): Promise<Metadata> {
   const product = await getProductBySlug((await params).slug);
-  if (!product) return { title: "Not found — EMPEESS" };
+  if (!product) return { title: "Not found | EMPEESS" };
   return {
-    title: `${product.name} — EMPEESS`,
+    title: `${product.name} | EMPEESS`,
     description: product.description ?? undefined,
     openGraph: { images: product.images[0] ? [product.images[0].url] : undefined },
   };
@@ -148,7 +148,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
                 <span className="text-xs text-neutral-500">{formatDate(r.createdAt)}</span>
               </div>
               {r.comment && <p className="mt-3 text-neutral-800">{r.comment}</p>}
-              <p className="mt-2 text-sm text-neutral-500">— {r.user?.name ?? "Customer"}</p>
+              <p className="mt-2 text-sm text-neutral-500">{r.user?.name ?? "Customer"}</p>
             </li>
           ))}
         </ul>

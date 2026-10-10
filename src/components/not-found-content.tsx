@@ -27,7 +27,7 @@ export async function NotFoundContent({ standalone = false }: { standalone?: boo
       )}
 
       <div className="mx-auto flex w-full max-w-360 flex-1 flex-col items-center justify-center px-4 pb-16 text-center sm:px-8">
-        <h1 className="sr-only">404 — page not found</h1>
+        <h1 className="sr-only">404: page not found</h1>
         <NotFoundHero />
 
         <FadeUp delay={0.5} className="mt-10 max-w-xl">

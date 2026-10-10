@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ForgotPasswordForm } from "@/components/store/auth-forms";
 import { AuthShell } from "@/components/store/auth-shell";
 
-export const metadata: Metadata = { title: "Forgot password — EMPEESS" };
+export const metadata: Metadata = { title: "Forgot password | EMPEESS" };
 
 export default function ForgotPasswordPage() {
   return (

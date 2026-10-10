@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { InfoPage } from "@/components/store/info-page";
 
-export const metadata: Metadata = { title: "Returns & refunds — EMPEESS" };
+export const metadata: Metadata = { title: "Returns & refunds | EMPEESS" };
 
 // TODO(owner): confirm the return window and conditions.
 export default function ReturnsPage() {

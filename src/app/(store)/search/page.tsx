@@ -9,7 +9,7 @@ import { listCategories } from "@/server/catalog";
 export async function generateMetadata({ searchParams }: PageProps<"/search">): Promise<Metadata> {
   const q = (await searchParams).q;
   const term = Array.isArray(q) ? q[0] : q;
-  return { title: term ? `“${term}” — Search — EMPEESS` : "Search — EMPEESS" };
+  return { title: term ? `“${term}” | Search | EMPEESS` : "Search | EMPEESS" };
 }
 
 export default async function SearchPage({ searchParams }: PageProps<"/search">) {

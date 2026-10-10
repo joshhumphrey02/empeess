@@ -4,7 +4,7 @@ import { PageHeading } from "@/components/store/page-heading";
 import { UnsubscribeForm } from "@/components/store/unsubscribe-form";
 import { validUnsubscribe } from "@/server/marketing";
 
-export const metadata: Metadata = { title: "Unsubscribe — EMPEESS", robots: { index: false } };
+export const metadata: Metadata = { title: "Unsubscribe | EMPEESS", robots: { index: false } };
 
 // A button, not an automatic unsubscribe on GET: mail scanners open links.
 export default async function UnsubscribePage({ searchParams }: PageProps<"/newsletter/unsubscribe">) {

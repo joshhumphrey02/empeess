@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/store/contact-form";
 import { InfoPage } from "@/components/store/info-page";
 import { getCurrentUser } from "@/server/auth/session";
 
-export const metadata: Metadata = { title: "Contact — EMPEESS" };
+export const metadata: Metadata = { title: "Contact | EMPEESS" };
 
 const ICONS: Record<string, typeof IconMail> = { LOCATION: IconMapPin, "CALL US": IconPhone, EMAIL: IconMail, "OPEN TIME": IconClock };
 

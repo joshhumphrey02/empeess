@@ -46,9 +46,9 @@ type VariantRow = {
 type ImageRow = ProductInput["images"][number] & { key: string };
 
 const STATUS_ITEMS = [
-  { value: "ACTIVE", label: "Active — visible in the store" },
-  { value: "DRAFT", label: "Draft — hidden" },
-  { value: "ARCHIVED", label: "Archived — hidden" },
+  { value: "ACTIVE", label: "Active (visible in the store)" },
+  { value: "DRAFT", label: "Draft (hidden)" },
+  { value: "ARCHIVED", label: "Archived (hidden)" },
 ];
 
 const slugify = (s: string) =>
@@ -327,7 +327,7 @@ export function ProductForm({
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="p-compare">Compare-at price (₦)</Label>
-                <Input id="p-compare" type="number" inputMode="decimal" min={1} step="any" value={compareAt} onChange={(e) => setCompareAt(e.target.value)} placeholder="Optional — shows a sale" />
+                <Input id="p-compare" type="number" inputMode="decimal" min={1} step="any" value={compareAt} onChange={(e) => setCompareAt(e.target.value)} placeholder="Optional, shows a sale" />
               </div>
               {compare > price && price > 0 && (
                 <p className="text-sm text-muted-foreground sm:col-span-2">
@@ -373,8 +373,8 @@ export function ProductForm({
                     <tr key={v.key} className="border-t align-middle">
                       <td className="py-2 pr-2"><Input aria-label={`Variant ${i + 1} colour`} value={v.color} onChange={(e) => updateVariant(v.key, { color: e.target.value })} placeholder="Black" /></td>
                       <td className="py-2 pr-2"><Input aria-label={`Variant ${i + 1} size`} value={v.size} onChange={(e) => updateVariant(v.key, { size: e.target.value })} placeholder="M" className="w-20" /></td>
-                      <td className="py-2 pr-2"><Input aria-label={`Variant ${i + 1} volume`} type="number" min={1} value={v.volumeMl} onChange={(e) => updateVariant(v.key, { volumeMl: e.target.value })} placeholder="—" className="w-24" /></td>
-                      <td className="py-2 pr-2"><Input aria-label={`Variant ${i + 1} price`} type="number" min={1} step="any" value={v.price} onChange={(e) => updateVariant(v.key, { price: e.target.value })} placeholder={basePrice || "—"} className="w-28" /></td>
+                      <td className="py-2 pr-2"><Input aria-label={`Variant ${i + 1} volume`} type="number" min={1} value={v.volumeMl} onChange={(e) => updateVariant(v.key, { volumeMl: e.target.value })} placeholder="-" className="w-24" /></td>
+                      <td className="py-2 pr-2"><Input aria-label={`Variant ${i + 1} price`} type="number" min={1} step="any" value={v.price} onChange={(e) => updateVariant(v.key, { price: e.target.value })} placeholder={basePrice || "-"} className="w-28" /></td>
                       <td className="py-2 pr-2"><Input aria-label={`Variant ${i + 1} stock`} type="number" min={0} step={1} required value={v.stock} onChange={(e) => updateVariant(v.key, { stock: e.target.value })} className={cn("w-20", Number(v.stock) === 0 && "text-red-700 dark:text-red-400")} /></td>
                       <td className="py-2 pr-2"><Input aria-label={`Variant ${i + 1} SKU`} value={v.sku} onChange={(e) => updateVariant(v.key, { sku: e.target.value.toUpperCase() })} placeholder={autoSku(effectiveSlug || "SKU", v)} className="w-56 font-mono text-xs" /></td>
                       <td className="py-2 pr-2"><Switch aria-label={`Variant ${i + 1} available`} checked={v.isActive} onCheckedChange={(checked) => updateVariant(v.key, { isActive: checked })} /></td>
@@ -458,7 +458,7 @@ export function ProductForm({
                 </Link>
                 <ConfirmAction
                   title={`Delete “${product.name}”?`}
-                  description="This removes the product, its variants, images and reviews. Past orders keep their line items. This can't be undone — archive it instead to hide it."
+                  description="This removes the product, its variants, images and reviews. Past orders keep their line items. This can't be undone. Archive it instead to hide it."
                   action={() => deleteProductAction(product.id)}
                   onDone={() => router.push("/admin/products")}
                   trigger={(open) => (

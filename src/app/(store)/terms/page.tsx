@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { InfoPage } from "@/components/store/info-page";
 
-export const metadata: Metadata = { title: "Terms & conditions — EMPEESS" };
+export const metadata: Metadata = { title: "Terms & conditions | EMPEESS" };
 
 // TODO(owner): a draft for a Nigerian online store; have a lawyer review before launch.
 export default function TermsPage() {

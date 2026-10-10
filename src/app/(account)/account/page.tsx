@@ -9,7 +9,7 @@ import { db } from "@/prisma/db";
 import { requireUser } from "@/server/auth/session";
 import { listOrders } from "@/server/orders";
 
-export const metadata: Metadata = { title: "Your account — EMPEESS" };
+export const metadata: Metadata = { title: "Your account | EMPEESS" };
 
 const NOTICES = {
   reset: { tone: "bg-emerald-50 text-emerald-900", text: "Your password has been changed and you're signed in. Other devices were signed out." },

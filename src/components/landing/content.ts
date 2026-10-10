@@ -2,7 +2,7 @@
 //
 // Every image here is a placeholder from Unsplash (free licence, no
 // attribution required). Swap them for product photography uploaded to Ark
-// once the catalog exists — Ark's `url` values are already allowed in
+// once the catalog exists. Ark's `url` values are already allowed in
 // next.config.ts. Stats, address and contact details are placeholders too.
 
 const unsplash = (photo: string) =>
@@ -45,7 +45,7 @@ export const hero = {
   tagLeft: "//FASHION",
   tagRight: "//STYLED FOR\nLIFE.",
   blurb:
-    "Explore curated collections, exclusive drops and everyday essentials — all thoughtfully designed in one stylish shopping destination.",
+    "Explore curated collections, exclusive drops and everyday essentials, all thoughtfully designed in one stylish shopping destination.",
   collection: "/ New\nCollection 2026",
   stat: { value: 12, suffix: "K+", label: "PEOPLE WE DRESS" },
 };
@@ -69,7 +69,7 @@ export const moments = {
 };
 
 export const categories = {
-  copy: "Every piece carries rhythm beyond clothing — its motion and meaning, where street energy meets everyday.",
+  copy: "Every piece carries rhythm beyond clothing: its motion and meaning, where street energy meets everyday.",
   items: [
     {
       name: "Clothes",

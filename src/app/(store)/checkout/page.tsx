@@ -11,7 +11,7 @@ import { requireUser } from "@/server/auth/session";
 import { getCart } from "@/server/cart";
 import { paystackConfigured } from "@/server/paystack";
 
-export const metadata: Metadata = { title: "Checkout — EMPEESS" };
+export const metadata: Metadata = { title: "Checkout | EMPEESS" };
 
 export default async function CheckoutPage() {
   const user = await requireUser("/checkout");

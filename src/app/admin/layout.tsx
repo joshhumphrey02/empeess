@@ -13,7 +13,7 @@ import { requireAdmin } from "@/server/admin/guard";
 import { expireStaleOrders } from "@/server/payments";
 
 export const metadata: Metadata = {
-  title: { default: "Dashboard — EMPEESS", template: "%s — EMPEESS Dashboard" },
+  title: { default: "Dashboard | EMPEESS", template: "%s | EMPEESS Dashboard" },
   robots: { index: false },
 };
 

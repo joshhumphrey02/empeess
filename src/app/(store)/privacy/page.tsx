@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { InfoPage } from "@/components/store/info-page";
 
-export const metadata: Metadata = { title: "Privacy policy — EMPEESS" };
+export const metadata: Metadata = { title: "Privacy policy | EMPEESS" };
 
 // TODO(owner): a draft aligned with the Nigeria Data Protection Act 2023; have it reviewed before launch.
 export default function PrivacyPage() {

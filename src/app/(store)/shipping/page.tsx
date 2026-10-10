@@ -5,7 +5,7 @@ import { InfoPage } from "@/components/store/info-page";
 import { formatMoney } from "@/lib/format";
 import { FREE_SHIPPING_THRESHOLD, PAYMENT_WINDOW_MINUTES, SHIPPING_FLAT_FEE } from "@/lib/store-config";
 
-export const metadata: Metadata = { title: "Shipping & delivery — EMPEESS" };
+export const metadata: Metadata = { title: "Shipping & delivery | EMPEESS" };
 
 // Fees come from store-config so this page can't drift from checkout.
 // TODO(owner): confirm the delivery times below.

@@ -64,7 +64,7 @@ export default async function CustomersPage({ searchParams }: PageProps<"/admin/
                       </Avatar>
                       <div className="min-w-0">
                         <Link href={`/admin/customers/${u.id}`} className="block truncate font-medium after:absolute after:inset-0 hover:text-brand">
-                          {u.name ?? "—"}
+                          {u.name ?? "-"}
                         </Link>
                         <span className="block truncate text-xs text-muted-foreground">{u.email}</span>
                       </div>

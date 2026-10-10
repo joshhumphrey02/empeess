@@ -24,7 +24,7 @@ const description = "Curated streetwear and fragrances. Shop clothes, joggers, h
 // this folder are picked up automatically; metadataBase makes their URLs absolute.
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
-  title: "EMPEESS — Clothes, Joggers, Hoodies & Perfumes",
+  title: "EMPEESS | Clothes, Joggers, Hoodies & Perfumes",
   description,
   applicationName: "EMPEESS",
   openGraph: { type: "website", siteName: "EMPEESS", title: "EMPEESS", description },

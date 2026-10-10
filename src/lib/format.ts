@@ -22,7 +22,7 @@ export function formatDate(iso: string) {
   });
 }
 
-/** "Black / M", "100ml" — human label for a variant. */
+/** "Black / M", "100ml": human label for a variant. */
 export function variantLabel(v: { color: string | null; size: string | null; volumeMl: number | null }) {
   return [v.color, v.size, v.volumeMl ? `${v.volumeMl}ml` : null].filter(Boolean).join(" / ");
 }

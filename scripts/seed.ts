@@ -114,7 +114,7 @@ const catalog: {
   {
     name: "Joggers",
     slug: "joggers",
-    description: "Tapered, cuffed and cut for movement — your everyday staple.",
+    description: "Tapered, cuffed and cut for movement. Your everyday staple.",
     image: photos.joggersSet,
     products: [
       {
@@ -208,7 +208,7 @@ const catalog: {
       {
         name: "Taupe Lounge Hoodie",
         description:
-          "Washed taupe hoodie in a lighter-weight loopback — the one you'll wear all year.",
+          "Washed taupe hoodie in a lighter-weight loopback, the one you'll wear all year.",
         price: 36000,
         images: [photos.hoodieTaupe],
         variants: [...apparelSizes("Taupe", [5, 8, 6, 2])],

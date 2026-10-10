@@ -5,7 +5,7 @@ import { ResetPasswordForm } from "@/components/store/auth-forms";
 import { AuthShell } from "@/components/store/auth-shell";
 import { tokenIsLive } from "@/server/auth/tokens";
 
-export const metadata: Metadata = { title: "Choose a new password — EMPEESS", robots: { index: false } };
+export const metadata: Metadata = { title: "Choose a new password | EMPEESS", robots: { index: false } };
 
 export default async function ResetPasswordPage({ searchParams }: PageProps<"/reset-password">) {
   const raw = (await searchParams).token;

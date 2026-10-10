@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { InfoPage } from "@/components/store/info-page";
 
-export const metadata: Metadata = { title: "About us — EMPEESS", description: "EMPEESS makes everyday streetwear and fragrances in Lagos." };
+export const metadata: Metadata = { title: "About us | EMPEESS", description: "EMPEESS makes everyday streetwear and fragrances in Lagos." };
 
 // TODO(owner): replace with the brand's own story and photos.
 export default function AboutPage() {

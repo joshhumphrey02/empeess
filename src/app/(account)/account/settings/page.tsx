@@ -5,7 +5,7 @@ import { SubmitButton } from "@/components/store/form-bits";
 import { PasswordForm, ProfileForm } from "@/components/store/settings-forms";
 import { requireUser } from "@/server/auth/session";
 
-export const metadata: Metadata = { title: "Settings — EMPEESS" };
+export const metadata: Metadata = { title: "Settings | EMPEESS" };
 
 export default async function SettingsPage() {
   const user = await requireUser("/account/settings");

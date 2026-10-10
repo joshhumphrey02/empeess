@@ -12,7 +12,7 @@ export default async function NewProductPage() {
   const categories = await adminListCategories();
   return (
     <>
-      <PageHeader title="Add product" description="Starts as a draft — publish when it's ready." />
+      <PageHeader title="Add product" description="Starts as a draft. Publish when it's ready." />
       {categories.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           Create a <Link href="/admin/categories" className="underline">category</Link> first.

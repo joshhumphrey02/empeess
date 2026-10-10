@@ -78,7 +78,7 @@ export function AddToCart({
         image: product.image,
         label,
         quantity: Number(state.fields?.quantity ?? 1),
-        note: state.message?.startsWith("Added —") ? state.message.replace("Added — ", "") : undefined,
+        note: state.message?.startsWith("Added: ") ? state.message.replace("Added: ", "") : undefined,
       });
     }
     // Only react to a new action result, not to option changes.
@@ -106,7 +106,7 @@ export function AddToCart({
       {dims.map((d) => (
         <fieldset key={d.key}>
           <legend className="mb-3 text-xs font-medium uppercase tracking-wide text-neutral-600">
-            {d.label}: <span className="text-neutral-950">{selected[d.key] !== undefined ? display(d.key, selected[d.key]!) : "—"}</span>
+            {d.label}: <span className="text-neutral-950">{selected[d.key] !== undefined ? display(d.key, selected[d.key]!) : "-"}</span>
           </legend>
           <div className="flex flex-wrap gap-2">
             {d.values.map((value) => {
@@ -139,7 +139,7 @@ export function AddToCart({
       <input type="hidden" name="quantity" value={quantity} />
 
       <p className={cn("text-sm", soldOut ? "text-red-600" : variant && variant.stock <= 5 ? "text-brand" : "text-neutral-500")}>
-        {soldOut ? "Sold out in this option." : variant && variant.stock <= 5 ? `Only ${variant.stock} left.` : "In stock — ready to ship."}
+        {soldOut ? "Sold out in this option." : variant && variant.stock <= 5 ? `Only ${variant.stock} left.` : "In stock, ready to ship."}
       </p>
 
       <div className="flex gap-3">

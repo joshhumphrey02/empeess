@@ -6,7 +6,7 @@ import { GoogleButton, RegisterForm } from "@/components/store/auth-forms";
 import { AuthShell } from "@/components/store/auth-shell";
 import { getCurrentUser, safeNext } from "@/server/auth/session";
 
-export const metadata: Metadata = { title: "Create account — EMPEESS" };
+export const metadata: Metadata = { title: "Create account | EMPEESS" };
 
 export default async function RegisterPage({ searchParams }: PageProps<"/register">) {
   const params = await searchParams;

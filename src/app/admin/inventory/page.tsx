@@ -126,11 +126,11 @@ export default async function InventoryPage({ searchParams }: PageProps<"/admin/
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {variantLabel(v) || "—"}
+                    {variantLabel(v) || "-"}
                     {!v.isActive && <span className="ml-2 rounded bg-muted px-1.5 py-px text-[10px] font-medium text-muted-foreground">Off</span>}
                   </TableCell>
                   <TableCell className="hidden font-mono text-xs text-muted-foreground md:table-cell">{v.sku}</TableCell>
-                  <TableCell className="hidden text-muted-foreground lg:table-cell">{v.product?.category?.name ?? "—"}</TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">{v.product?.category?.name ?? "-"}</TableCell>
                   <TableCell className="hidden sm:table-cell">{v.product && <StatusPill status={v.product.status} />}</TableCell>
                   <TableCell className="pr-4">
                     <span className="flex items-center justify-end gap-3">

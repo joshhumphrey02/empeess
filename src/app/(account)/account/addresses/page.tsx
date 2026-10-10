@@ -4,7 +4,7 @@ import { AddressBook } from "@/components/store/address-book";
 import { db } from "@/prisma/db";
 import { requireUser } from "@/server/auth/session";
 
-export const metadata: Metadata = { title: "Addresses — EMPEESS" };
+export const metadata: Metadata = { title: "Addresses | EMPEESS" };
 
 export default async function AddressesPage() {
   const user = await requireUser("/account/addresses");

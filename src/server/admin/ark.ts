@@ -39,7 +39,7 @@ export async function uploadImage(file: File): Promise<UploadedImage> {
     filename: file.name,
     contentType: file.type,
   });
-  // Ark's URLs are permanent CDN addresses — store them verbatim (Ark docs §6).
+  // Ark's URLs are permanent CDN addresses, so store them verbatim (Ark docs §6).
   return {
     arkAssetId: uploaded.id,
     url: uploaded.url,

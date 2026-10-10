@@ -7,8 +7,8 @@ import { getCategoryBySlug } from "@/server/catalog";
 
 export async function generateMetadata({ params }: PageProps<"/shop/[category]">): Promise<Metadata> {
   const category = await getCategoryBySlug((await params).category);
-  if (!category) return { title: "Not found — EMPEESS" };
-  return { title: `${category.name} — EMPEESS`, description: category.description ?? undefined };
+  if (!category) return { title: "Not found | EMPEESS" };
+  return { title: `${category.name} | EMPEESS`, description: category.description ?? undefined };
 }
 
 export default async function CategoryPage({ params, searchParams }: PageProps<"/shop/[category]">) {
