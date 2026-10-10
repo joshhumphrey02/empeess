@@ -54,18 +54,21 @@ const createDb = () => {
 // `next dev` re-evaluates this module on every hot reload. Reuse one client
 // (and so one pool) across reloads instead of opening a new pool each time,
 // but rebuild it when the emitted contract changes.
+//
+// The key is versioned: a hot reload runs new code against whatever an older
+// version of this file left on globalThis, so bump it when the shape changes.
 const cached = globalThis as typeof globalThis & {
-  __empeessDb?: { hash: string } & ReturnType<typeof createDb>;
+  __empeessDbV2?: { hash: string } & ReturnType<typeof createDb>;
 };
 const hash = contractJson.storage.storageHash;
 
-if (cached.__empeessDb && cached.__empeessDb.hash !== hash) {
-  void cached.__empeessDb.pool.end().catch(() => undefined);
-  cached.__empeessDb = undefined;
+if (cached.__empeessDbV2 && cached.__empeessDbV2.hash !== hash) {
+  void cached.__empeessDbV2.pool.end().catch(() => undefined);
+  cached.__empeessDbV2 = undefined;
 }
 
-const current = cached.__empeessDb ?? { hash, ...createDb() };
+const current = cached.__empeessDbV2 ?? { hash, ...createDb() };
 
-if (process.env.NODE_ENV !== 'production') cached.__empeessDb = current;
+if (process.env.NODE_ENV !== 'production') cached.__empeessDbV2 = current;
 
 export const db = current.client;
