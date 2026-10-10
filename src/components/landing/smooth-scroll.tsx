@@ -12,7 +12,7 @@ function ScrollTriggerSync() {
   return null;
 }
 
-// Lenis smooth scrolling driven by GSAP's ticker, so ScrollTrigger and Lenis
+// Home page only. Lenis smooth scrolling driven by GSAP's ticker, so ScrollTrigger and Lenis
 // read the same scroll position on the same frame. Motion animations honour
 // the visitor's reduced-motion setting.
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
@@ -32,7 +32,19 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       <ReactLenis
         root
         ref={lenisRef}
-        options={{ autoRaf: false, lerp: 0.09, smoothWheel: true }}
+        options={{
+          autoRaf: false,
+          lerp: 0.09,
+          smoothWheel: true,
+          // Slow the page down so the scroll-driven sections have time to
+          // play: each wheel notch or swipe moves less than the browser default.
+          wheelMultiplier: 0.6,
+          // Touch scrolling is native unless Lenis drives it; syncTouch is what
+          // lets the multiplier and a gentler fling apply on phones.
+          syncTouch: true,
+          touchMultiplier: 0.75,
+          touchInertiaExponent: 1.4,
+        }}
       >
         <ScrollTriggerSync />
         {children}
