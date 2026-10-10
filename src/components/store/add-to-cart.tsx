@@ -32,15 +32,12 @@ type DimKey = (typeof DIMENSIONS)[number]["key"];
 const display = (key: DimKey, value: string | number) => (key === "volumeMl" ? `${value}ml` : String(value));
 
 export function AddToCart({
-  wishlist,
   product,
   variants,
   basePrice,
   compareAtPrice,
   currency,
 }: {
-  /** Rendered beside the add button (the wishlist heart). */
-  wishlist?: React.ReactNode;
   product: { name: string; image: string | null };
   variants: Variant[];
   basePrice: number;
@@ -142,8 +139,7 @@ export function AddToCart({
         {soldOut ? "Sold out in this option." : variant && variant.stock <= 5 ? `Only ${variant.stock} left.` : "In stock, ready to ship."}
       </p>
 
-      {/* Phones: stepper and save share a row, the main button gets its own. */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex gap-3">
         <div className="flex h-12 items-center rounded-full border border-neutral-200">
           <button
             type="button"
@@ -167,10 +163,9 @@ export function AddToCart({
             <IconPlus className="size-4" />
           </button>
         </div>
-        <SubmitButton disabled={soldOut} className="order-last w-full whitespace-nowrap sm:order-0 sm:w-auto sm:min-w-max sm:flex-1">
+        <SubmitButton disabled={soldOut} className="flex-1 whitespace-nowrap">
           {soldOut ? "Sold out" : "Add to cart"}
         </SubmitButton>
-        {wishlist}
       </div>
 
     </form>

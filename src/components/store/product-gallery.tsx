@@ -6,7 +6,16 @@ import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-export function ProductGallery({ images, name }: { images: { id: string; url: string; alt: string | null }[]; name: string }) {
+export function ProductGallery({
+  images,
+  name,
+  overlay,
+}: {
+  images: { id: string; url: string; alt: string | null }[];
+  name: string;
+  /** Pinned to the top-right of the main image (the wishlist heart). */
+  overlay?: React.ReactNode;
+}) {
   const [active, setActive] = useState(0);
   const current = images[active];
 
@@ -57,6 +66,7 @@ export function ProductGallery({ images, name }: { images: { id: string; url: st
             </motion.div>
           )}
         </AnimatePresence>
+        {overlay && <div className="absolute right-4 top-4 z-10">{overlay}</div>}
       </div>
     </div>
   );

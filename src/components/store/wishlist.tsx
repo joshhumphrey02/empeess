@@ -27,7 +27,7 @@ export function WishlistProvider({ ids, signedIn, children }: { ids: string[]; s
 }
 
 /** Heart toggle. Optimistic; reverts with a toast if the server says no. */
-export function WishlistButton({ productId, name, variant = "overlay", className }: { productId: string; name: string; variant?: "overlay" | "pill"; className?: string }) {
+export function WishlistButton({ productId, name, className }: { productId: string; name: string; className?: string }) {
   const ctx = use(WishlistContext);
   const router = useRouter();
   const pathname = usePathname();
@@ -61,16 +61,13 @@ export function WishlistButton({ productId, name, variant = "overlay", className
       aria-pressed={on}
       aria-label={on ? `Remove ${name} from wishlist` : `Save ${name} to wishlist`}
       className={cn(
-        variant === "overlay"
-          ? "grid size-9 place-items-center rounded-full bg-white/90 text-neutral-950 shadow-sm backdrop-blur transition-transform hover:scale-110"
-          : "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-neutral-200 px-5 text-sm transition-colors hover:border-neutral-900",
+        "grid size-9 place-items-center rounded-full bg-white/90 text-neutral-950 shadow-sm backdrop-blur transition-transform hover:scale-110",
         className,
       )}
     >
       <motion.span key={String(on)} initial={{ scale: on ? 0.4 : 1 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 15 }} className="grid place-items-center">
         <Icon className={cn("size-[18px]", on && "text-red-500")} aria-hidden />
       </motion.span>
-      {variant === "pill" && <span>{on ? "Saved" : "Save"}</span>}
     </button>
   );
 }

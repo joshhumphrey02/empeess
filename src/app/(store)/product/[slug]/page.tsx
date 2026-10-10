@@ -61,7 +61,11 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
-        <ProductGallery images={product.images} name={product.name} />
+        <ProductGallery
+          images={product.images}
+          name={product.name}
+          overlay={<WishlistButton productId={product.id} name={product.name} className="size-11" />}
+        />
 
         <div className="lg:sticky lg:top-32 lg:self-start">
           {product.category && (
@@ -79,7 +83,6 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
 
           <div className="mt-8">
             <AddToCart
-              wishlist={<WishlistButton productId={product.id} name={product.name} variant="pill" />}
               product={{ name: product.name, image: product.images[0]?.url ?? null }}
               variants={product.variants}
               basePrice={product.basePrice}
