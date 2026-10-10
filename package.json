@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "contract:emit": "prisma contract emit",
+    "db:migrate": "prisma db migrate",
     "db:seed": "bun scripts/seed.ts",
     "admin:grant": "bun scripts/grant-admin.ts",
     "brand:assets": "bun scripts/brand-assets.ts"
