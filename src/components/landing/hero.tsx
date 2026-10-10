@@ -11,9 +11,12 @@ import { hero, images } from "./content";
 import { Flower } from "./primitives";
 
 function HeadlineLine({ text, className }: { text: string; className?: string }) {
+  // The leading "- " is a desktop flourish; phones show the bare word.
+  const dashed = text.startsWith("- ");
   return (
     <span data-hero-line className={className}>
-      {text}
+      {dashed && <span className="hidden lg:inline">- </span>}
+      {dashed ? text.slice(2) : text}
     </span>
   );
 }
@@ -192,9 +195,9 @@ export function Hero() {
             {hero.blurbShort}
           </p>
 
-          {/* One row on phones (avatars left, stat right); from lg the
-              children drop back into the column. */}
-          <div className="mt-6 flex items-end justify-between lg:contents">
+          {/* Avatars and the stat are desktop-only; from lg the children sit
+              directly in the column. */}
+          <div className="hidden lg:contents">
             <div className="flex items-center lg:mr-[22%] lg:mt-14">
               {[images.hoodieMono, images.hoodieBlack].map((src, i) => (
                 <span
@@ -224,8 +227,8 @@ export function Hero() {
               <Flower className="size-7" />
             </span>
 
-            <div data-hero-fade className="invisible text-right lg:mt-auto lg:mr-[3%] lg:pb-10 lg:text-left">
-              <p className="text-3xl font-medium tracking-tight text-neutral-950 lg:text-4xl">
+            <div data-hero-fade className="invisible lg:mt-auto lg:mr-[3%] lg:pb-10">
+              <p className="text-4xl font-medium tracking-tight text-neutral-950">
                 <span data-hero-count>{hero.stat.value}</span>
                 {hero.stat.suffix}
               </p>
