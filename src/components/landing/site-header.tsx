@@ -156,9 +156,9 @@ export function SiteHeader({
             exit={{ clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.8, ease }}
           >
-            <div className="mx-auto grid min-h-full max-w-360 gap-10 px-6 pb-12 pt-32 sm:px-12 lg:grid-cols-[1fr_380px] lg:items-end">
+            <div className="mx-auto grid min-h-full max-w-360 items-center gap-10 px-6 pb-12 pt-32 sm:px-12 lg:grid-cols-[1fr_380px]">
               <nav aria-label="Main">
-                <ul className="space-y-1">
+                <ul>
                   {nav.links.map((link, i) => (
                     <li key={link.href} className="overflow-hidden">
                       <motion.div
@@ -170,7 +170,7 @@ export function SiteHeader({
                         <Link
                           href={link.href}
                           onClick={() => setOpen(false)}
-                          className="group flex items-baseline gap-4 text-[clamp(2.75rem,8vw,7rem)] font-medium leading-[0.95] tracking-tighter text-neutral-950"
+                          className="group flex items-baseline gap-4 text-[clamp(2.25rem,6vw,5rem)] font-medium leading-[1.15] tracking-tighter text-neutral-950"
                         >
                           <span className="text-sm font-normal tracking-normal text-neutral-400">
                             [0{i + 1}]
