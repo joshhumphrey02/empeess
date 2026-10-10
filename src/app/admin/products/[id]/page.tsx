@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { PageHeader, StatusPill } from "@/components/admin/kit";
 import { ProductForm } from "@/components/admin/product-form";
 import { adminListCategories } from "@/server/admin/catalog-admin";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 import { adminGetProduct } from "@/server/admin/products";
 
 export async function generateMetadata({ params }: PageProps<"/admin/products/[id]">) {
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps<"/admin/products/[i
 
 export default async function EditProductPage({ params }: PageProps<"/admin/products/[id]">) {
   const { id } = await params;
-  await requireAdmin(`/admin/products/${id}`);
+  await requireAccess("catalog", `/admin/products/${id}`);
   const [product, categories] = await Promise.all([adminGetProduct(id).catch(() => null), adminListCategories()]);
   if (!product) notFound();
 

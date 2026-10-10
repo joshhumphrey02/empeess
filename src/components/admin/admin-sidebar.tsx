@@ -11,6 +11,7 @@ import {
   IconReceipt,
   IconStar,
   IconUsers,
+  IconUsersGroup,
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -31,6 +32,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import type { Permission } from "@/lib/permissions";
 
 type NavItem = {
   href: string;
@@ -38,37 +40,58 @@ type NavItem = {
   icon: typeof IconBox;
   exact?: boolean;
   badge?: "toFulfil" | "lowStock" | "unread";
+  /** The privilege needed to see this item; "admin" is admins only. */
+  needs: Permission | "admin";
 };
 
 const groups: { label: string; items: NavItem[] }[] = [
   {
     label: "Store",
     items: [
-      { href: "/admin", label: "Overview", icon: IconLayoutDashboard, exact: true },
-      { href: "/admin/orders", label: "Orders", icon: IconReceipt, badge: "toFulfil" },
-      { href: "/admin/customers", label: "Customers", icon: IconUsers },
+      { href: "/admin", label: "Overview", icon: IconLayoutDashboard, exact: true, needs: "overview" },
+      { href: "/admin/orders", label: "Orders", icon: IconReceipt, badge: "toFulfil", needs: "orders" },
+      { href: "/admin/customers", label: "Customers", icon: IconUsers, needs: "customers" },
     ],
   },
   {
     label: "Catalog",
     items: [
-      { href: "/admin/products", label: "Products", icon: IconBox },
-      { href: "/admin/categories", label: "Categories", icon: IconCategory },
-      { href: "/admin/inventory", label: "Inventory", icon: IconPackages, badge: "lowStock" },
-      { href: "/admin/reviews", label: "Reviews", icon: IconStar },
+      { href: "/admin/products", label: "Products", icon: IconBox, needs: "catalog" },
+      { href: "/admin/categories", label: "Categories", icon: IconCategory, needs: "catalog" },
+      { href: "/admin/inventory", label: "Inventory", icon: IconPackages, badge: "lowStock", needs: "catalog" },
+      { href: "/admin/reviews", label: "Reviews", icon: IconStar, needs: "reviews" },
     ],
   },
   {
     label: "Engage",
     items: [
-      { href: "/admin/messages", label: "Messages", icon: IconMessage, badge: "unread" },
-      { href: "/admin/subscribers", label: "Subscribers", icon: IconMailCheck },
+      { href: "/admin/messages", label: "Messages", icon: IconMessage, badge: "unread", needs: "messages" },
+      { href: "/admin/subscribers", label: "Subscribers", icon: IconMailCheck, needs: "subscribers" },
     ],
+  },
+  {
+    label: "Settings",
+    items: [{ href: "/admin/team", label: "Team", icon: IconUsersGroup, needs: "admin" }],
   },
 ];
 
-export function AdminSidebar({ counts }: { counts: { toFulfil: number; lowStock: number; unread: number } }) {
+export function AdminSidebar({
+  counts,
+  access,
+  isAdmin,
+}: {
+  counts: { toFulfil: number; lowStock: number; unread: number };
+  /** Privileges this person holds; items they can't open are left out. */
+  access: Permission[];
+  isAdmin: boolean;
+}) {
   const pathname = usePathname();
+  const visible = groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => (item.needs === "admin" ? isAdmin : access.includes(item.needs))),
+    }))
+    .filter((group) => group.items.length > 0);
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
@@ -86,7 +109,7 @@ export function AdminSidebar({ counts }: { counts: { toFulfil: number; lowStock:
       </SidebarHeader>
 
       <SidebarContent>
-        {groups.map((group) => (
+        {visible.map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>

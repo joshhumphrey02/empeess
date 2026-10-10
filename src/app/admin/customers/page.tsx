@@ -6,14 +6,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate, formatMoney } from "@/lib/format";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 import { adminListCustomers, customerSummary } from "@/server/admin/sales";
 
 export const metadata = { title: "Customers" };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
 
 export default async function CustomersPage({ searchParams }: PageProps<"/admin/customers">) {
-  await requireAdmin("/admin/customers");
+  await requireAccess("customers", "/admin/customers");
   const sp = await searchParams;
   const q = one(sp.q);
   const role = one(sp.role);
@@ -29,7 +29,7 @@ export default async function CustomersPage({ searchParams }: PageProps<"/admin/
       <StatCards
         className="lg:grid-cols-4"
         items={[
-          { key: "all", label: "Everyone", value: summary.customers + summary.admins, icon: <IconUsers />, href: href({ role: undefined, page: undefined }), active: !role },
+          { key: "all", label: "Everyone", value: summary.customers + summary.admins + summary.staff, icon: <IconUsers />, href: href({ role: undefined, page: undefined }), active: !role },
           { key: "CUSTOMER", label: "Customers", value: summary.customers, icon: <IconUsers />, tone: "success", href: href({ role: "CUSTOMER", page: undefined }), active: role === "CUSTOMER" },
           { key: "ADMIN", label: "Admins", value: summary.admins, icon: <IconShieldStar />, hint: "Can open this dashboard", href: href({ role: "ADMIN", page: undefined }), active: role === "ADMIN" },
           { key: "new", label: "New this month", value: summary.newThisMonth, icon: <IconUserPlus />, tone: "warning", hint: "Signed up in 30 days" },

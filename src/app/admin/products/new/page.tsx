@@ -3,12 +3,12 @@ import Link from "next/link";
 import { PageHeader } from "@/components/admin/kit";
 import { ProductForm } from "@/components/admin/product-form";
 import { adminListCategories } from "@/server/admin/catalog-admin";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 
 export const metadata = { title: "Add product" };
 
 export default async function NewProductPage() {
-  await requireAdmin("/admin/products/new");
+  await requireAccess("catalog", "/admin/products/new");
   const categories = await adminListCategories();
   return (
     <>

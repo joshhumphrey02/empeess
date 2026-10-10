@@ -6,13 +6,13 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate } from "@/lib/format";
 import { adminListSubscribers, subscriberSummary } from "@/server/admin/engage";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 
 export const metadata = { title: "Subscribers" };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
 
 export default async function SubscribersPage({ searchParams }: PageProps<"/admin/subscribers">) {
-  await requireAdmin("/admin/subscribers");
+  await requireAccess("subscribers", "/admin/subscribers");
   const sp = await searchParams;
   const q = one(sp.q);
   const status = one(sp.status);

@@ -81,3 +81,22 @@ export async function sendEmailVerification(user: { email: string; name: string 
   });
   await sendEmail({ to: user.email, subject: "Confirm your EMPEESS email", html, text });
 }
+
+/**
+ * Invite for a staff account an admin just created: a password-reset link, so
+ * the new person chooses their own password. Returns false if it wasn't sent.
+ */
+export async function sendStaffInvite(user: { email: string; name: string | null }) {
+  const token = await issue(user.email, "PASSWORD_RESET");
+  const url = absoluteUrl(`/reset-password?token=${token}`);
+  const { html, text } = layout({
+    heading: "You've been added to the EMPEESS team",
+    paragraphs: [
+      `Hi${user.name ? ` ${user.name.split(" ")[0]}` : ""}, an admin gave you access to the EMPEESS dashboard.`,
+      "Choose a password to finish setting up your account. The link works once and expires in 1 hour.",
+    ],
+    button: { label: "Set my password", url },
+    footnote: "Link expired? Use “Forgot password” on the sign-in page with this email address.",
+  });
+  return sendEmail({ to: user.email, subject: "Your EMPEESS dashboard access", html, text });
+}

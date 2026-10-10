@@ -112,7 +112,7 @@ export async function customerSummary() {
     db.orm.public.User.where((u) => u.createdAt.gte(monthAgo)).aggregate((a) => ({ count: a.count() })),
   ]);
   const of = (r: string) => roles.find((x) => x.role === r)?.count ?? 0;
-  return { customers: of("CUSTOMER"), admins: of("ADMIN"), newThisMonth: fresh.count };
+  return { customers: of("CUSTOMER"), admins: of("ADMIN"), staff: of("STAFF"), newThisMonth: fresh.count };
 }
 
 export async function adminListCustomers(opts: { q?: string; role?: string; page?: number; sort?: string }) {
@@ -126,7 +126,7 @@ export async function adminListCustomers(opts: { q?: string; role?: string; page
       const term = likeTerm(opts.q);
       users = users.where((u) => or(u.email.ilike(term), u.name.ilike(term)));
     }
-    if (opts.role === "ADMIN" || opts.role === "CUSTOMER") {
+    if (opts.role === "ADMIN" || opts.role === "STAFF" || opts.role === "CUSTOMER") {
       const role = opts.role;
       users = users.where((u) => u.role.eq(role));
     }
@@ -167,7 +167,8 @@ export async function adminGetCustomer(id: string) {
 
 export async function setCustomerRole(id: string, role: "ADMIN" | "CUSTOMER", actingUserId: string) {
   if (id === actingUserId && role !== "ADMIN") throw new AdminInputError("You can't remove your own admin access.");
-  await db.orm.public.User.where({ id }).update({ role });
+  // Staff privileges don't apply to either role, so don't leave any behind.
+  await db.orm.public.User.where({ id }).update({ role, permissions: [] });
 }
 
 // ─── Overview ────────────────────────────────────────────────────────────────

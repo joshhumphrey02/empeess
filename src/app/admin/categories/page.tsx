@@ -1,12 +1,12 @@
 import { CategoryManager } from "@/components/admin/category-manager";
 import { PageHeader } from "@/components/admin/kit";
 import { adminListCategories } from "@/server/admin/catalog-admin";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 
 export const metadata = { title: "Categories" };
 
 export default async function CategoriesPage() {
-  await requireAdmin("/admin/categories");
+  await requireAccess("catalog", "/admin/categories");
   const categories = await adminListCategories();
   return (
     <>

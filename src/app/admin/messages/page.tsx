@@ -2,13 +2,13 @@ import { AdminPagination, EmptyState, FilterTabs, PageHeader, withQuery } from "
 import { MessageList } from "@/components/admin/message-list";
 import { Card } from "@/components/ui/card";
 import { adminListMessages, unreadMessageCount } from "@/server/admin/engage";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 
 export const metadata = { title: "Messages" };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
 
 export default async function MessagesPage({ searchParams }: PageProps<"/admin/messages">) {
-  await requireAdmin("/admin/messages");
+  await requireAccess("messages", "/admin/messages");
   const sp = await searchParams;
   const filter = one(sp.filter);
   const page = Number(one(sp.page)) || 1;

@@ -1,10 +1,10 @@
-import { assertAdmin } from "@/server/admin/guard";
+import { assertAccess } from "@/server/admin/guard";
 import { activeSubscriberEmails } from "@/server/admin/engage";
 
 // CSV of active subscribers for importing into an email tool.
 export async function GET() {
   try {
-    await assertAdmin();
+    await assertAccess("subscribers");
   } catch {
     return new Response("Not found", { status: 404 });
   }

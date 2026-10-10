@@ -9,6 +9,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { EmptyState, rowEnter, StatusPill } from "@/components/admin/kit";
 import { KpiCard, SalesChart, StatusBars, TopProducts } from "@/components/admin/overview-charts";
@@ -21,7 +22,8 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { formatDate, formatMoney, variantLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { requireAdmin } from "@/server/admin/guard";
+import { can } from "@/lib/permissions";
+import { homeFor, requireAccess } from "@/server/admin/guard";
 import { overviewStats } from "@/server/admin/sales";
 
 export const metadata = { title: "Overview" };
@@ -29,7 +31,13 @@ export const metadata = { title: "Overview" };
 const DAYS = 30;
 
 export default async function AdminOverview() {
-  const user = await requireAdmin("/admin");
+  const user = await requireAccess("team", "/admin");
+  // Staff without the overview land on the first section they can open.
+  if (!can(user, "overview")) {
+    const home = homeFor(user);
+    if (home && home !== "/admin") redirect(home);
+    return <EmptyState title="No dashboard access yet">Ask an admin to give you at least one privilege.</EmptyState>;
+  }
   const s = await overviewStats(DAYS);
 
   const last = s.daily.slice(-DAYS);

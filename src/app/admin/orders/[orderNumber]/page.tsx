@@ -10,7 +10,7 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { formatMoney } from "@/lib/format";
 import { PAYMENT_WINDOW_MINUTES } from "@/lib/store-config";
 import { cn } from "@/lib/utils";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 import { adminGetOrder, NEXT_STATUSES } from "@/server/admin/sales";
 
 export async function generateMetadata({ params }: PageProps<"/admin/orders/[orderNumber]">) {
@@ -32,7 +32,7 @@ const when = (iso: string | null) =>
 
 export default async function AdminOrderPage({ params }: PageProps<"/admin/orders/[orderNumber]">) {
   const { orderNumber } = await params;
-  await requireAdmin(`/admin/orders/${orderNumber}`);
+  await requireAccess("orders", `/admin/orders/${orderNumber}`);
   const order = await adminGetOrder(orderNumber);
   if (!order) notFound();
 

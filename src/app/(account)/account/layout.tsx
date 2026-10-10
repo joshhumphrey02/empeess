@@ -30,7 +30,7 @@ export default async function AccountLayout({ children }: LayoutProps<"/account"
       <TooltipProvider>
         <SidebarProvider defaultOpen={store.get("sidebar_state")?.value !== "false"} className="bg-canvas">
           <AccountSidebar
-            user={{ name: user.name, email: user.email, avatarUrl: user.avatarUrl, isAdmin: user.role === "ADMIN" }}
+            user={{ name: user.name, email: user.email, avatarUrl: user.avatarUrl, isAdmin: user.role !== "CUSTOMER" }}
             activeOrders={active.count}
             savedCount={saved.length}
           />

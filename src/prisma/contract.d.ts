@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'2bdbadb32de66cd2b2404d0ead4017d48da254e0414fa4fb1e848242eec23ca4'>;
+  StorageHashBase<'6267fe6a7414542042bd9590ec3f75eaea38f99f85c01b0b96cc409fefca964a'>;
 export type ExecutionHash =
   ExecutionHashBase<'43b9122f442b4b040e2586eedf21341365cfbf5b4eedcd566185e6071f3d90b7'>;
 export type ProfileHash =
@@ -438,13 +438,15 @@ export type FieldOutputTypes = {
     readonly User: {
       readonly avatarArkId: CodecTypes['pg/text@1']['output'] | null;
       readonly avatarUrl: CodecTypes['pg/text@1']['output'] | null;
+      readonly bannedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly emailVerifiedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['output'] | null;
-      readonly role: 'CUSTOMER' | 'ADMIN';
+      readonly permissions: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
+      readonly role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly VerificationToken: {
@@ -654,13 +656,15 @@ export type FieldInputTypes = {
     readonly User: {
       readonly avatarArkId: CodecTypes['pg/text@1']['input'] | null;
       readonly avatarUrl: CodecTypes['pg/text@1']['input'] | null;
+      readonly bannedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly emailVerifiedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['input'] | null;
-      readonly role: 'CUSTOMER' | 'ADMIN';
+      readonly permissions: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
+      readonly role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly VerificationToken: {
@@ -870,13 +874,15 @@ export type StorageColumnTypes = {
     readonly User: {
       readonly avatarArkId: CodecTypes['pg/text@1']['output'] | null;
       readonly avatarUrl: CodecTypes['pg/text@1']['output'] | null;
+      readonly bannedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly emailVerifiedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['output'] | null;
-      readonly role: 'CUSTOMER' | 'ADMIN';
+      readonly permissions: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
+      readonly role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly VerificationToken: {
@@ -1086,13 +1092,15 @@ export type StorageColumnInputTypes = {
     readonly User: {
       readonly avatarArkId: CodecTypes['pg/text@1']['input'] | null;
       readonly avatarUrl: CodecTypes['pg/text@1']['input'] | null;
+      readonly bannedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly emailVerifiedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['input'] | null;
-      readonly role: 'CUSTOMER' | 'ADMIN';
+      readonly permissions: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
+      readonly role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly VerificationToken: {
@@ -1343,13 +1351,15 @@ export namespace Models {
   export type public_User = {
     avatarArkId: CodecTypes['pg/text@1']['output'] | null;
     avatarUrl: CodecTypes['pg/text@1']['output'] | null;
+    bannedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     email: CodecTypes['pg/text@1']['output'];
     emailVerifiedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     id: CodecTypes['pg/text@1']['output'];
     name: CodecTypes['pg/text@1']['output'] | null;
     passwordHash: CodecTypes['pg/text@1']['output'] | null;
-    role: 'CUSTOMER' | 'ADMIN';
+    permissions: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
+    role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     accounts: public_Account[];
     addresses: public_Address[];
@@ -2755,6 +2765,11 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                 };
+                readonly bannedAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -2785,6 +2800,15 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
+                };
+                readonly permissions: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', readonly []>;
+                  };
                 };
                 readonly role: {
                   readonly nativeType: 'text';
@@ -2948,7 +2972,7 @@ type ContractBase = Omit<
             };
             readonly UserRole: {
               readonly kind: 'valueSet';
-              readonly values: readonly ['CUSTOMER', 'ADMIN'];
+              readonly values: readonly ['CUSTOMER', 'STAFF', 'ADMIN'];
             };
             readonly VerificationPurpose: {
               readonly kind: 'valueSet';
@@ -4366,6 +4390,13 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly bannedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -4395,6 +4426,11 @@ type ContractBase = Omit<
               readonly passwordHash: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly permissions: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+                readonly many: true;
               };
               readonly role: {
                 readonly nullable: false;
@@ -4491,12 +4527,14 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly avatarArkId: { readonly column: 'avatarArkId' };
                 readonly avatarUrl: { readonly column: 'avatarUrl' };
+                readonly bannedAt: { readonly column: 'bannedAt' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly email: { readonly column: 'email' };
                 readonly emailVerifiedAt: { readonly column: 'emailVerifiedAt' };
                 readonly id: { readonly column: 'id' };
                 readonly name: { readonly column: 'name' };
                 readonly passwordHash: { readonly column: 'passwordHash' };
+                readonly permissions: { readonly column: 'permissions' };
                 readonly role: { readonly column: 'role' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };
@@ -4648,6 +4686,7 @@ type ContractBase = Omit<
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
               { readonly name: 'CUSTOMER'; readonly value: 'CUSTOMER' },
+              { readonly name: 'STAFF'; readonly value: 'STAFF' },
               { readonly name: 'ADMIN'; readonly value: 'ADMIN' },
             ];
           };

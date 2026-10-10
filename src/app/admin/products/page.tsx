@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { MovingBorderLink } from "@/components/ui/moving-border";
 import { db } from "@/prisma/db";
 import { adminListCategories } from "@/server/admin/catalog-admin";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 import { adminListProducts } from "@/server/admin/products";
 
 export const metadata = { title: "Products" };
@@ -15,7 +15,7 @@ export const metadata = { title: "Products" };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
 
 export default async function ProductsPage({ searchParams }: PageProps<"/admin/products">) {
-  await requireAdmin("/admin/products");
+  await requireAccess("catalog", "/admin/products");
   const sp = await searchParams;
   const q = one(sp.q);
   const status = one(sp.status);

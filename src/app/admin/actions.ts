@@ -20,9 +20,12 @@ import {
 } from "@/server/admin/products";
 import { runAdminAction } from "@/server/admin/run-action";
 import { setCustomerRole, updateOrderStatus, type OrderStatus } from "@/server/admin/sales";
+import { addStaff, removeStaff, setStaffBanned, setStaffPermissions } from "@/server/admin/team";
 import { refundOrder } from "@/server/payments";
 
-export type { ActionResult } from "@/server/admin/run-action";
+import type { ActionResult } from "@/server/admin/run-action";
+
+export type { ActionResult };
 
 const run = runAdminAction;
 
@@ -32,7 +35,7 @@ const refreshCatalog = () => revalidatePath("/", "layout");
 // ─── Products ────────────────────────────────────────────────────────────────
 
 export async function saveProductAction(input: ProductInput) {
-  return run(async () => {
+  return run("catalog", async () => {
     const id = await saveProduct(input);
     refreshCatalog();
     return id;
@@ -40,14 +43,14 @@ export async function saveProductAction(input: ProductInput) {
 }
 
 export async function deleteProductAction(id: string) {
-  return run(async () => {
+  return run("catalog", async () => {
     await deleteProduct(id);
     refreshCatalog();
   }, "Product deleted.");
 }
 
 export async function setProductStatusAction(id: string, status: ProductStatus) {
-  return run(async () => {
+  return run("catalog", async () => {
     await setProductStatus(id, status);
     refreshCatalog();
   }, `Product ${status === "ACTIVE" ? "published" : status === "ARCHIVED" ? "archived" : "moved to drafts"}.`);
@@ -57,7 +60,7 @@ export async function setProductStatusAction(id: string, status: ProductStatus) 
 const MAX_BULK = 100;
 
 export async function bulkSetProductStatusAction(ids: string[], status: ProductStatus) {
-  return run(async () => {
+  return run("catalog", async () => {
     if (ids.length > MAX_BULK) throw new ProductInputError(`Select ${MAX_BULK} products or fewer.`);
     for (const id of ids) await setProductStatus(id, status);
     refreshCatalog();
@@ -65,7 +68,7 @@ export async function bulkSetProductStatusAction(ids: string[], status: ProductS
 }
 
 export async function bulkDeleteProductsAction(ids: string[]) {
-  return run(async () => {
+  return run("catalog", async () => {
     if (ids.length > MAX_BULK) throw new ProductInputError(`Select ${MAX_BULK} products or fewer.`);
     for (const id of ids) await deleteProduct(id);
     refreshCatalog();
@@ -75,21 +78,21 @@ export async function bulkDeleteProductsAction(ids: string[]) {
 // ─── Categories ──────────────────────────────────────────────────────────────
 
 export async function saveCategoryAction(input: CategoryInput) {
-  return run(async () => {
+  return run("catalog", async () => {
     await saveCategory(input);
     refreshCatalog();
   }, input.id ? "Category updated." : "Category created.");
 }
 
 export async function deleteCategoryAction(id: string) {
-  return run(async () => {
+  return run("catalog", async () => {
     await deleteCategory(id);
     refreshCatalog();
   }, "Category deleted.");
 }
 
 export async function moveCategoryAction(id: string, direction: "up" | "down") {
-  return run(async () => {
+  return run("catalog", async () => {
     await moveCategory(id, direction);
     refreshCatalog();
   });
@@ -98,7 +101,7 @@ export async function moveCategoryAction(id: string, direction: "up" | "down") {
 // ─── Inventory ───────────────────────────────────────────────────────────────
 
 export async function setStockAction(variantId: string, stock: number) {
-  return run(async () => {
+  return run("catalog", async () => {
     await setStock(variantId, stock);
     refreshCatalog();
   }, "Stock updated.");
@@ -107,7 +110,7 @@ export async function setStockAction(variantId: string, stock: number) {
 // ─── Orders / customers / reviews ────────────────────────────────────────────
 
 export async function updateOrderStatusAction(orderNumber: string, status: OrderStatus) {
-  return run(async () => {
+  return run("orders", async () => {
     await updateOrderStatus(orderNumber, status);
     revalidatePath("/", "layout");
   }, `Order marked ${status.toLowerCase()}.`);
@@ -115,22 +118,63 @@ export async function updateOrderStatusAction(orderNumber: string, status: Order
 
 /** Refunds the order's Paystack payment in full and marks the order refunded. */
 export async function refundOrderAction(orderNumber: string, note?: string) {
-  return run(async () => {
+  return run("orders", async () => {
     await refundOrder(orderNumber, note);
     revalidatePath("/", "layout");
   }, "Refund started with Paystack. The customer usually sees it in a few working days.");
 }
 
 export async function setCustomerRoleAction(userId: string, role: "ADMIN" | "CUSTOMER") {
-  return run(async (adminId) => {
+  return run("admin", async (adminId) => {
     await setCustomerRole(userId, role, adminId);
     revalidatePath("/admin", "layout");
   }, role === "ADMIN" ? "Admin access granted." : "Admin access removed.");
 }
 
 export async function deleteReviewAction(id: string) {
-  return run(async () => {
+  return run("reviews", async () => {
     await deleteReview(id);
     refreshCatalog();
   }, "Review deleted.");
+}
+
+// ─── Team (admins only) ──────────────────────────────────────────────────────
+
+export async function addStaffAction(input: { email: string; name?: string; permissions: string[] }): Promise<ActionResult> {
+  const result = await run("admin", async () => {
+    const outcome = await addStaff(input);
+    revalidatePath("/admin", "layout");
+    return outcome;
+  });
+  if (!result.ok) return result;
+  const { invited, emailed } = result.data!;
+  return {
+    ok: true,
+    message: !invited
+      ? "Added to the team. Their existing sign-in still works."
+      : emailed
+        ? "Account created. We emailed them a link to set a password."
+        : "Account created, but the invite email couldn't be sent. Ask them to use “Forgot password” on the sign-in page.",
+  };
+}
+
+export async function setStaffPermissionsAction(userId: string, permissions: string[]) {
+  return run("admin", async (adminId) => {
+    await setStaffPermissions(userId, permissions, adminId);
+    revalidatePath("/admin", "layout");
+  }, "Privileges updated.");
+}
+
+export async function removeStaffAction(userId: string) {
+  return run("admin", async (adminId) => {
+    await removeStaff(userId, adminId);
+    revalidatePath("/admin", "layout");
+  }, "Removed from the team.");
+}
+
+export async function setStaffBannedAction(userId: string, banned: boolean) {
+  return run("admin", async (adminId) => {
+    await setStaffBanned(userId, banned, adminId);
+    revalidatePath("/admin", "layout");
+  }, banned ? "Banned. They've been signed out." : "Ban lifted.");
 }

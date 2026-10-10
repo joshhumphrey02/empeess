@@ -12,6 +12,8 @@ types {
 enum UserRole {
   @@type("pg/text@1")
   CUSTOMER = "CUSTOMER"
+  // Dashboard access limited to the sections listed in `User.permissions`.
+  STAFF    = "STAFF"
   ADMIN    = "ADMIN"
 }
 
@@ -58,6 +60,11 @@ model User {
   passwordHash    String?
   emailVerifiedAt TimestamptzString?
   role            UserRole           @default(CUSTOMER)
+  // Dashboard sections a STAFF user may open (see src/lib/permissions.ts).
+  // Ignored for ADMIN (everything) and CUSTOMER (nothing).
+  permissions     String[]           @default([])
+  // Set when an admin bans the account: it can no longer sign in.
+  bannedAt        TimestamptzString?
 
   // Profile picture: Ark asset id plus its permanent CDN url, or a Google
   // avatar url (no Ark id) for OAuth users.

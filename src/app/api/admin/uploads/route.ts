@@ -9,14 +9,14 @@ import {
   MAX_IMAGE_BYTES,
   uploadImage,
 } from "@/server/admin/ark";
-import { assertAdmin } from "@/server/admin/guard";
+import { assertAccess } from "@/server/admin/guard";
 
 // Images go browser → this handler → Ark, so the Ark token never reaches the
 // browser. Ark returns permanent CDN URLs that the product/category form saves.
 
 async function authorized() {
   try {
-    await assertAdmin();
+    await assertAccess("catalog");
     return true;
   } catch {
     return false;

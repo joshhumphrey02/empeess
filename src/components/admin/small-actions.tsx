@@ -50,9 +50,9 @@ export function RoleSwitch({ userId, isAdmin, isSelf }: { userId: string; isAdmi
   return (
     <label className="flex items-center justify-between gap-4 text-sm">
       <span>
-        <span className="block font-medium">Dashboard access</span>
+        <span className="block font-medium">Admin access</span>
         <span className="block text-xs text-muted-foreground">
-          {isSelf ? "You can't remove your own access." : "Admins can manage products, orders and customers."}
+          {isSelf ? "You can't remove your own access." : "Admins can do everything, including managing the team. For limited access, add them as staff under Team."}
         </span>
       </span>
       <Switch

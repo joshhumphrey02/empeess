@@ -8,7 +8,7 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { adminListReviews, reviewSummary } from "@/server/admin/catalog-admin";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 
 export const metadata = { title: "Reviews" };
 
@@ -23,7 +23,7 @@ function Stars({ value, className }: { value: number; className?: string }) {
 }
 
 export default async function ReviewsPage({ searchParams }: PageProps<"/admin/reviews">) {
-  await requireAdmin("/admin/reviews");
+  await requireAccess("reviews", "/admin/reviews");
   const sp = await searchParams;
   const ratingParam = Array.isArray(sp.rating) ? sp.rating[0] : sp.rating;
   const rating = Number(ratingParam) || undefined;

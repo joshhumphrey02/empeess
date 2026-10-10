@@ -5,6 +5,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
+import { cleanPermissions, type Permission, type Role } from "@/lib/permissions";
 import { db } from "@/prisma/db";
 
 export const SESSION_COOKIE = "empeess_session";
@@ -16,7 +17,9 @@ export type SessionUser = {
   id: string;
   email: string;
   name: string | null;
-  role: "CUSTOMER" | "ADMIN";
+  role: Role;
+  /** Dashboard privileges; only meaningful for STAFF (admins have them all). */
+  permissions: Permission[];
   avatarUrl: string | null;
   hasPassword: boolean;
   emailVerified: boolean;
@@ -70,11 +73,14 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
   if (!session || new Date(session.expiresAt).getTime() < Date.now()) return null;
 
   const u = session.user;
+  // A banned account is signed out everywhere, even with a live session.
+  if (u.bannedAt) return null;
   return {
     id: u.id,
     email: u.email,
     name: u.name,
     role: u.role,
+    permissions: u.role === "STAFF" ? cleanPermissions(u.permissions) : [],
     avatarUrl: u.avatarUrl,
     hasPassword: u.passwordHash !== null,
     emailVerified: u.emailVerifiedAt !== null,

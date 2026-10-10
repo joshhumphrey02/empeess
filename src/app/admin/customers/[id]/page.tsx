@@ -10,14 +10,14 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate, formatMoney } from "@/lib/format";
 import { isSale } from "@/lib/store-config";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 import { adminGetCustomer } from "@/server/admin/sales";
 
 export const metadata = { title: "Customer" };
 
 export default async function CustomerPage({ params }: PageProps<"/admin/customers/[id]">) {
   const { id } = await params;
-  const admin = await requireAdmin(`/admin/customers/${id}`);
+  const admin = await requireAccess("customers", `/admin/customers/${id}`);
   const user = await adminGetCustomer(id).catch(() => null);
   if (!user) notFound();
 
@@ -101,11 +101,13 @@ export default async function CustomerPage({ params }: PageProps<"/admin/custome
               </div>
             </dl>
           </SpotlightCard>
-          <Card>
-            <CardContent>
-              <RoleSwitch userId={user.id} isAdmin={user.role === "ADMIN"} isSelf={user.id === admin.id} />
-            </CardContent>
-          </Card>
+          {admin.role === "ADMIN" && (
+            <Card>
+              <CardContent>
+                <RoleSwitch userId={user.id} isAdmin={user.role === "ADMIN"} isSelf={user.id === admin.id} />
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Addresses</CardTitle>

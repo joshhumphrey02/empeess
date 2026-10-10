@@ -160,6 +160,10 @@
                 "value": "CUSTOMER"
               },
               {
+                "name": "STAFF",
+                "value": "STAFF"
+              },
+              {
                 "name": "ADMIN",
                 "value": "ADMIN"
               }
@@ -2353,6 +2357,13 @@
                   "kind": "scalar"
                 }
               },
+              "bannedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -2390,6 +2401,14 @@
               },
               "passwordHash": {
                 "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "permissions": {
+                "many": true,
+                "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -2532,6 +2551,9 @@
                 "avatarUrl": {
                   "column": "avatarUrl"
                 },
+                "bannedAt": {
+                  "column": "bannedAt"
+                },
                 "createdAt": {
                   "column": "createdAt"
                 },
@@ -2549,6 +2571,9 @@
                 },
                 "passwordHash": {
                   "column": "passwordHash"
+                },
+                "permissions": {
+                  "column": "permissions"
                 },
                 "role": {
                   "column": "role"
@@ -4435,8 +4460,13 @@
             "User": {
               "checks": [
                 {
-                  "expression": "\"role\" IN ('CUSTOMER', 'ADMIN')",
-                  "name": "User_role_check_3cc42c46",
+                  "expression": "array_position(\"permissions\", NULL) IS NULL",
+                  "name": "User_permissions_elem_not_null_318e2952",
+                  "prefix": "User_permissions_elem_not_null"
+                },
+                {
+                  "expression": "\"role\" IN ('CUSTOMER', 'STAFF', 'ADMIN')",
+                  "name": "User_role_check_5fad36fa",
                   "prefix": "User_role_check"
                 }
               ],
@@ -4449,6 +4479,11 @@
                 "avatarUrl": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
+                  "nullable": true
+                },
+                "bannedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
                   "nullable": true
                 },
                 "createdAt": {
@@ -4484,6 +4519,16 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": true
+                },
+                "permissions": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": []
+                  },
+                  "many": true,
+                  "nativeType": "text",
+                  "nullable": false
                 },
                 "role": {
                   "codecId": "pg/text@1",
@@ -4731,6 +4776,7 @@
               "kind": "valueSet",
               "values": [
                 "CUSTOMER",
+                "STAFF",
                 "ADMIN"
               ]
             },
@@ -4747,7 +4793,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "2bdbadb32de66cd2b2404d0ead4017d48da254e0414fa4fb1e848242eec23ca4",
+    "storageHash": "6267fe6a7414542042bd9590ec3f75eaea38f99f85c01b0b96cc409fefca964a",
     "types": {
       "Money": {
         "codecId": "pg/int4@1",

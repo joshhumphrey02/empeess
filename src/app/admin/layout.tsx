@@ -9,7 +9,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ADMIN_THEME_COOKIE, parseThemePref } from "@/lib/admin-theme-key";
 import { db } from "@/prisma/db";
 import { unreadMessageCount } from "@/server/admin/engage";
-import { requireAdmin } from "@/server/admin/guard";
+import { PERMISSION_KEYS, can } from "@/lib/permissions";
+import { requireAccess } from "@/server/admin/guard";
 import { expireStaleOrders } from "@/server/payments";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
-  const user = await requireAdmin("/admin");
+  const user = await requireAccess("team", "/admin");
   // Release stock held by orders that were never paid (no cron needed).
   await expireStaleOrders().catch((e) => console.error("[admin] expiring unpaid orders failed", e));
   const [store, toFulfil, lowStock, unread] = await Promise.all([
@@ -35,7 +36,11 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     <AdminThemeProvider initial={parseThemePref(store.get(ADMIN_THEME_COOKIE)?.value)}>
       <TooltipProvider>
         <SidebarProvider defaultOpen={defaultOpen}>
-          <AdminSidebar counts={{ toFulfil: toFulfil.count, lowStock: lowStock.count, unread }} />
+          <AdminSidebar
+            counts={{ toFulfil: toFulfil.count, lowStock: lowStock.count, unread }}
+            access={PERMISSION_KEYS.filter((p) => can(user, p))}
+            isAdmin={user.role === "ADMIN"}
+          />
           <SidebarInset className="min-w-0">
             <AdminHeader user={user} />
             <div className="flex-1 p-4 md:p-6 lg:p-8">{children}</div>

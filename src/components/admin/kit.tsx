@@ -227,6 +227,9 @@ const ORDER_TONE: Record<string, string> = {
   DRAFT: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
   ARCHIVED: "bg-muted text-muted-foreground",
   ADMIN: "bg-brand-soft text-brand",
+  STAFF: "bg-sky-100 text-sky-900 dark:bg-sky-500/15 dark:text-sky-300",
+  BANNED: "bg-red-100 text-red-900 dark:bg-red-500/15 dark:text-red-300",
+  INVITED: "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-300",
   CUSTOMER: "bg-muted text-muted-foreground",
 };
 

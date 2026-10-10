@@ -20,7 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { variantLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { adminListCategories, adminListInventory, inventorySummary } from "@/server/admin/catalog-admin";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 
 export const metadata = { title: "Inventory" };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
@@ -28,7 +28,7 @@ const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) 
 const FILTER_PARAMS = ["q", "stock", "category", "status", "visibility"];
 
 export default async function InventoryPage({ searchParams }: PageProps<"/admin/inventory">) {
-  await requireAdmin("/admin/inventory");
+  await requireAccess("catalog", "/admin/inventory");
   const sp = await searchParams;
   const params = {
     q: one(sp.q),

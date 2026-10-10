@@ -6,14 +6,14 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate, formatMoney } from "@/lib/format";
 import { db } from "@/prisma/db";
-import { requireAdmin } from "@/server/admin/guard";
+import { requireAccess } from "@/server/admin/guard";
 import { adminListOrders, ORDER_STATUSES } from "@/server/admin/sales";
 
 export const metadata = { title: "Orders" };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
 
 export default async function OrdersPage({ searchParams }: PageProps<"/admin/orders">) {
-  await requireAdmin("/admin/orders");
+  await requireAccess("orders", "/admin/orders");
   const sp = await searchParams;
   const q = one(sp.q);
   const status = one(sp.status);

@@ -30,7 +30,7 @@ export async function register(_prev: FormState, form: FormData): Promise<FormSt
     return {
       error: existing.passwordHash
         ? "An account with this email already exists. Sign in instead."
-        : "This email is linked to Google sign-in. Use “Continue with Google”.",
+        : "An account with this email already exists. Use “Continue with Google”, or “Forgot password” to set a password.",
       fields,
     };
   }
@@ -54,17 +54,20 @@ export async function login(_prev: FormState, form: FormData): Promise<FormState
   const fields = { email };
   if (!email || !password) return { error: "Enter your email and password.", fields };
 
-  const user = await db.orm.public.User.where({ email }).select("id", "passwordHash").first();
+  const user = await db.orm.public.User.where({ email }).select("id", "passwordHash", "bannedAt").first();
   // Same message whether the email or the password is wrong.
   const ok = user?.passwordHash ? await verifyPassword(password, user.passwordHash) : false;
   if (!user || !ok) {
     return {
       error: user && !user.passwordHash
-        ? "This account uses Google sign-in. Use “Continue with Google”."
+        ? "This account has no password yet. Use “Continue with Google”, or “Forgot password” to set one."
         : "Incorrect email or password.",
       fields,
     };
   }
+
+  // Only after the password checks out, so this can't be used to probe accounts.
+  if (user.bannedAt) return { error: "This account has been suspended. Contact us if you think that's a mistake.", fields };
 
   await createSession(user.id);
   await mergeGuestCart(user.id);
