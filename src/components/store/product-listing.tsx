@@ -14,17 +14,19 @@ export async function ProductListing({
   basePath,
   params,
   categoryId,
-  activeCategory,
   showCategories = true,
 }: {
   basePath: string;
   params: Params;
+  /** Pin the listing to one category (category pages). */
   categoryId?: string;
-  activeCategory?: string;
   showCategories?: boolean;
 }) {
-  const query = { ...parseProductQuery(params), categoryId };
-  const [categories, result] = await Promise.all([listCategories(), listProducts(query)]);
+  const categories = await listCategories();
+  // With the pills showing, the category is a filter read from the URL.
+  const picked = showCategories ? categories.find((c) => c.slug === one(params.category)) : undefined;
+  const query = { ...parseProductQuery(params), categoryId: categoryId ?? picked?.id };
+  const result = await listProducts(query);
   const hasFilters = query.minPrice !== undefined || query.maxPrice !== undefined || query.inStock;
 
   return (
@@ -32,11 +34,10 @@ export async function ProductListing({
       <ShopToolbar
         action={basePath}
         categories={categories}
-        activeCategory={activeCategory}
         sorts={SORTS}
         showCategories={showCategories}
         hidden={query.q ? { q: query.q } : undefined}
-        values={{ sort: one(params.sort), min: one(params.min), max: one(params.max), stock: one(params.stock) }}
+        values={{ category: picked?.slug, sort: one(params.sort), min: one(params.min), max: one(params.max), stock: one(params.stock) }}
       />
       <p className="mb-8 mt-6 text-sm text-neutral-500" aria-live="polite">
         {result.total} {result.total === 1 ? "product" : "products"}
