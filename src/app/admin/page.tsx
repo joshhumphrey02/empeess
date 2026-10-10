@@ -15,10 +15,9 @@ import { EmptyState, rowEnter, StatusPill } from "@/components/admin/kit";
 import { KpiCard, SalesChart, StatusBars, TopProducts } from "@/components/admin/overview-charts";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 import { buttonVariants } from "@/components/ui/button";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MovingBorderLink } from "@/components/ui/moving-border";
 import { Spotlight } from "@/components/ui/spotlight";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { formatDate, formatMoney, variantLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -162,10 +161,10 @@ export default async function AdminOverview() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
-        <SpotlightCard className="pb-0 xl:col-span-2" radius={420}>
+        <Card className="relative isolate pb-0 xl:col-span-2">
           <SalesChart daily={s.daily} />
-        </SpotlightCard>
-        <SpotlightCard>
+        </Card>
+        <Card className="relative isolate">
           <CardHeader>
             <CardTitle>Orders by status</CardTitle>
             <CardDescription>All time. Click a bar to open those orders.</CardDescription>
@@ -179,19 +178,19 @@ export default async function AdminOverview() {
               <EmptyState title="No orders yet">Orders placed in the store appear here.</EmptyState>
             )}
           </CardContent>
-        </SpotlightCard>
+        </Card>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
-        <SpotlightCard>
+        <Card className="relative isolate">
           <CardHeader>
             <CardTitle>Top products</CardTitle>
             <CardDescription>Units sold, last 30 days</CardDescription>
           </CardHeader>
           <CardContent>{s.topProducts.length ? <TopProducts items={s.topProducts} /> : <EmptyState title="No sales yet" />}</CardContent>
-        </SpotlightCard>
+        </Card>
 
-        <SpotlightCard>
+        <Card className="relative isolate">
           <CardHeader>
             <CardTitle>Low stock</CardTitle>
             <CardDescription>5 or fewer left</CardDescription>
@@ -243,9 +242,9 @@ export default async function AdminOverview() {
               Manage inventory <IconArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
             </Link>
           </CardContent>
-        </SpotlightCard>
+        </Card>
 
-        <SpotlightCard>
+        <Card className="relative isolate">
           <CardHeader>
             <CardTitle>Recent orders</CardTitle>
             <CardDescription>Newest first</CardDescription>
@@ -285,7 +284,7 @@ export default async function AdminOverview() {
               <EmptyState title="No orders yet" />
             )}
           </CardContent>
-        </SpotlightCard>
+        </Card>
       </div>
     </div>
   );

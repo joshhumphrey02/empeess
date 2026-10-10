@@ -10,7 +10,7 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } fro
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { NumberTicker } from "@/components/ui/number-ticker";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { Card } from "@/components/ui/card";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -88,9 +88,8 @@ export function KpiCard({
   const gradient = `spark-${useId().replace(/[^\w-]/g, "")}`;
   const config = { value: { label: seriesLabel, color: "var(--chart-1)" } } satisfies ChartConfig;
   return (
-    <SpotlightCard
-      size="sm"
-      className="animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-both pb-0 duration-700"
+    <Card
+      size="sm" className="relative isolate animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-both pb-0 duration-700"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       <div className="flex items-start justify-between gap-3 px-(--card-spacing)">
@@ -133,7 +132,7 @@ export function KpiCard({
           />
         </AreaChart>
       </ChartContainer>
-    </SpotlightCard>
+    </Card>
   );
 }
 

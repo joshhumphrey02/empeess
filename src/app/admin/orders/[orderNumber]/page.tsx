@@ -5,8 +5,7 @@ import { notFound } from "next/navigation";
 
 import { PageHeader, StatusPill } from "@/components/admin/kit";
 import { OrderStatusActions } from "@/components/admin/order-status-actions";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMoney } from "@/lib/format";
 import { PAYMENT_WINDOW_MINUTES } from "@/lib/store-config";
 import { cn } from "@/lib/utils";
@@ -70,7 +69,7 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
         }
       />
 
-      <SpotlightCard className="mb-4">
+      <Card className="relative isolate mb-4">
         <ol className="flex items-start px-(--card-spacing)" aria-label="Fulfilment progress">
           {STEPS.map((step, i) => {
             const done = i <= reached;
@@ -105,11 +104,11 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
             <IconX className="size-4" aria-hidden /> This order was {order.status.toLowerCase()}.
           </p>
         )}
-      </SpotlightCard>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
         <div className="grid h-fit gap-4">
-          <SpotlightCard>
+          <Card className="relative isolate">
             <CardHeader>
               <CardTitle>Update status</CardTitle>
             </CardHeader>
@@ -130,9 +129,9 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                 </p>
               )}
             </CardContent>
-          </SpotlightCard>
+          </Card>
 
-          <SpotlightCard>
+          <Card className="relative isolate">
             <CardHeader>
               <CardTitle>Items</CardTitle>
             </CardHeader>
@@ -166,11 +165,11 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                 <div className="flex justify-between text-muted-foreground"><dt>Payment</dt><dd>{paid ? "Paid with Paystack" : order.status === "REFUNDED" ? "Refunded" : "Not paid"}</dd></div>
               </dl>
             </CardContent>
-          </SpotlightCard>
+          </Card>
         </div>
 
         <div className="grid h-fit gap-4">
-          <SpotlightCard>
+          <Card className="relative isolate">
             <CardHeader>
               <CardTitle>Customer</CardTitle>
             </CardHeader>
@@ -184,8 +183,8 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
               )}
               <p className="text-muted-foreground">{order.user?.email}</p>
             </CardContent>
-          </SpotlightCard>
-          <SpotlightCard>
+          </Card>
+          <Card className="relative isolate">
             <CardHeader>
               <CardTitle>Deliver to</CardTitle>
             </CardHeader>
@@ -201,8 +200,8 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
               </a>
               {order.note && <p className="mt-3 rounded-lg bg-muted p-2 text-muted-foreground">“{order.note}”</p>}
             </CardContent>
-          </SpotlightCard>
-          <SpotlightCard>
+          </Card>
+          <Card className="relative isolate">
             <CardHeader>
               <CardTitle>Timeline</CardTitle>
             </CardHeader>
@@ -221,8 +220,8 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                 ))}
               </ol>
             </CardContent>
-          </SpotlightCard>
-          <SpotlightCard>
+          </Card>
+          <Card className="relative isolate">
             <CardHeader>
               <CardTitle>Payments</CardTitle>
             </CardHeader>
@@ -244,7 +243,7 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                 );
               })}
             </CardContent>
-          </SpotlightCard>
+          </Card>
         </div>
       </div>
     </>

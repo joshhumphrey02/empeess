@@ -4,7 +4,6 @@ import Link from "next/link";
 import { EmptyState, PageHeader, rowEnter, withQuery } from "@/components/admin/kit";
 import { DeleteReviewButton } from "@/components/admin/small-actions";
 import { Card } from "@/components/ui/card";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { adminListReviews, reviewSummary } from "@/server/admin/catalog-admin";
@@ -35,7 +34,7 @@ export default async function ReviewsPage({ searchParams }: PageProps<"/admin/re
       <PageHeader title="Reviews" description="Remove spam or abusive reviews. Ratings update instantly in the store." />
 
       <div className="grid gap-4 lg:grid-cols-[18rem_1fr]">
-        <SpotlightCard className="h-fit lg:sticky lg:top-20">
+        <Card className="relative isolate h-fit lg:sticky lg:top-20">
           <div className="px-(--card-spacing)">
             <p className="text-xs font-medium text-muted-foreground">Average rating</p>
             <p className="mt-1 flex items-baseline gap-2">
@@ -75,7 +74,7 @@ export default async function ReviewsPage({ searchParams }: PageProps<"/admin/re
               Show all ratings
             </Link>
           )}
-        </SpotlightCard>
+        </Card>
 
         <Card className="py-0">
           {reviews.length === 0 ? (

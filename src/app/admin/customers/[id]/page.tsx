@@ -6,7 +6,6 @@ import { RoleSwitch } from "@/components/admin/small-actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NumberTicker } from "@/components/ui/number-ticker";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate, formatMoney } from "@/lib/format";
 import { isSale } from "@/lib/store-config";
@@ -67,7 +66,7 @@ export default async function CustomerPage({ params }: PageProps<"/admin/custome
         </Card>
 
         <div className="grid h-fit gap-4">
-          <SpotlightCard className="pt-0">
+          <Card className="relative isolate pt-0">
             {/* Profile header: brand gradient strip with the avatar overlapping it. */}
             <div className="h-20 bg-linear-to-br from-chart-1 via-chart-2 to-chart-3" aria-hidden />
             <div className="-mt-12 flex flex-col items-center gap-1 px-(--card-spacing) text-center">
@@ -100,7 +99,7 @@ export default async function CustomerPage({ params }: PageProps<"/admin/custome
                 <dd className="capitalize">{[user.passwordHash ? "Email" : null, ...user.accounts.map((a) => a.provider)].filter(Boolean).join(", ")}</dd>
               </div>
             </dl>
-          </SpotlightCard>
+          </Card>
           {admin.role === "ADMIN" && (
             <Card>
               <CardContent>
