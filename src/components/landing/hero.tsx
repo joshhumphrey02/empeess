@@ -132,7 +132,7 @@ export function Hero() {
           </h1>
           <p
             aria-hidden
-            className="flex justify-between whitespace-nowrap text-[15vw] font-medium leading-[0.86] tracking-[-0.055em] text-neutral-950 lg:block lg:text-[clamp(4.25rem,9.6vw,10.5rem)]"
+            className="flex gap-[0.2em] whitespace-nowrap text-[17vw] font-medium leading-[0.86] tracking-[-0.055em] text-neutral-950 lg:block lg:text-[clamp(4.25rem,9.6vw,10.5rem)]"
           >
             <HeadlineLine text={hero.lineA[0]} className="lg:block" />
             <HeadlineLine text={hero.lineA[1]} className="lg:block" />
@@ -183,7 +183,7 @@ export function Hero() {
           </span>
           <p
             aria-hidden
-            className="flex justify-between whitespace-nowrap text-[15vw] font-medium leading-[0.86] tracking-[-0.055em] text-neutral-950 lg:block lg:text-[clamp(4.25rem,9.6vw,10.5rem)] lg:text-right"
+            className="flex gap-[0.2em] whitespace-nowrap text-[17vw] font-medium leading-[0.86] tracking-[-0.055em] text-neutral-950 lg:block lg:text-[clamp(4.25rem,9.6vw,10.5rem)] lg:text-right"
           >
             <HeadlineLine text={hero.lineB[0]} className="lg:block lg:pr-[22%]" />
             <HeadlineLine text={hero.lineB[1]} className="lg:block" />
