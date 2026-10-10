@@ -9,18 +9,16 @@ import {
   MAX_IMAGE_BYTES,
   uploadImage,
 } from "@/server/admin/ark";
-import { assertAccess } from "@/server/admin/guard";
+import { can } from "@/lib/permissions";
+import { getCurrentUser } from "@/server/auth/session";
 
 // Images go browser → this handler → Ark, so the Ark token never reaches the
-// browser. Ark returns permanent CDN URLs that the product/category form saves.
+// browser. Ark returns permanent CDN URLs that the product, category and site
+// content forms save.
 
 async function authorized() {
-  try {
-    await assertAccess("catalog");
-    return true;
-  } catch {
-    return false;
-  }
+  const user = await getCurrentUser();
+  return Boolean(user && (can(user, "catalog") || can(user, "content")));
 }
 
 export async function POST(request: NextRequest) {
@@ -57,11 +55,12 @@ export async function DELETE(request: NextRequest) {
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
   // Never delete an asset something still points at.
-  const [image, category] = await Promise.all([
+  const [image, category, content] = await Promise.all([
     db.orm.public.ProductImage.where({ arkAssetId: id }).select("id").first(),
     db.orm.public.Category.where({ imageArkId: id }).select("id").first(),
+    db.orm.public.SiteContent.where({ arkId: id }).select("key").first(),
   ]);
-  if (image || category) return NextResponse.json({ deleted: false, reason: "in use" });
+  if (image || category || content) return NextResponse.json({ deleted: false, reason: "in use" });
 
   await deleteImages([id]);
   return NextResponse.json({ deleted: true });

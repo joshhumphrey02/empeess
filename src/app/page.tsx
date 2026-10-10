@@ -9,21 +9,26 @@ import { SmoothScroll } from "@/components/landing/smooth-scroll";
 import { Testimonials } from "@/components/landing/testimonials";
 import { getCurrentUser } from "@/server/auth/session";
 import { getCartCount } from "@/server/cart";
+import { getSiteContent } from "@/server/site-content";
 
 export default async function Home() {
-  const [user, cartCount] = await Promise.all([getCurrentUser(), getCartCount()]);
+  const [user, cartCount, content] = await Promise.all([getCurrentUser(), getCartCount(), getSiteContent()]);
   return (
     <SmoothScroll>
-      <SiteHeader cartCount={cartCount} signedIn={Boolean(user)} />
+      <SiteHeader
+        cartCount={cartCount}
+        signedIn={Boolean(user)}
+        menuImage={{ src: content.hero.src, alt: content.hero.imageAlt }}
+      />
       <main className="flex-1 bg-white">
-        <Hero />
-        <Moments />
-        <Categories />
-        <Testimonials />
-        <Lookbook />
-        <Collections />
+        <Hero content={content.hero} />
+        <Moments content={content.moments} />
+        <Categories content={content.categories} />
+        <Testimonials content={content.testimonials} />
+        <Lookbook content={content.lookbook} />
+        <Collections content={content.collections} />
       </main>
-      <SiteFooter />
+      <SiteFooter content={content.footer} />
     </SmoothScroll>
   );
 }

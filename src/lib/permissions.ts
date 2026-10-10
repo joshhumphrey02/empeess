@@ -10,6 +10,7 @@ export const PERMISSIONS = {
   reviews: { label: "Reviews", description: "Read and delete product reviews." },
   messages: { label: "Messages", description: "Read and delete contact-form messages." },
   subscribers: { label: "Subscribers", description: "View and export newsletter subscribers." },
+  content: { label: "Site content", description: "Change home page photos, text and contact details." },
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -40,4 +41,5 @@ export const PERMISSION_HOME: Record<Permission, string> = {
   reviews: "/admin/reviews",
   messages: "/admin/messages",
   subscribers: "/admin/subscribers",
+  content: "/admin/content",
 };

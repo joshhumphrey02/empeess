@@ -64,6 +64,10 @@
       "model": "Session",
       "namespace": "public"
     },
+    "SiteContent": {
+      "model": "SiteContent",
+      "namespace": "public"
+    },
     "User": {
       "model": "User",
       "namespace": "public"
@@ -2341,6 +2345,57 @@
               "table": "Session"
             }
           },
+          "SiteContent": {
+            "fields": {
+              "arkId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "key": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "value": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "arkId": {
+                  "column": "arkId"
+                },
+                "key": {
+                  "column": "key"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "value": {
+                  "column": "value"
+                }
+              },
+              "namespaceId": "public",
+              "table": "SiteContent"
+            }
+          },
           "User": {
             "fields": {
               "avatarArkId": {
@@ -4457,6 +4512,38 @@
                 }
               ]
             },
+            "SiteContent": {
+              "columns": {
+                "arkId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "key": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "value": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "key"
+                ]
+              },
+              "uniques": []
+            },
             "User": {
               "checks": [
                 {
@@ -4793,7 +4880,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6267fe6a7414542042bd9590ec3f75eaea38f99f85c01b0b96cc409fefca964a",
+    "storageHash": "8cbbe1056c0ec84ac90a65c9d72bfeae2631c7d7d87f3e8971c21402fd230657",
     "types": {
       "Money": {
         "codecId": "pg/int4@1",
@@ -4803,7 +4890,7 @@
     }
   },
   "execution": {
-    "executionHash": "43b9122f442b4b040e2586eedf21341365cfbf5b4eedcd566185e6071f3d90b7",
+    "executionHash": "33e0651f03e9269b29f6d190c33b546fdffacb09129a445b44d0c6c6fc57ff7d",
     "mutations": {
       "defaults": [
         {
@@ -5133,6 +5220,21 @@
           "ref": {
             "entry": "Session",
             "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "SiteContent",
+            "field": "updatedAt",
             "namespace": "public"
           }
         },

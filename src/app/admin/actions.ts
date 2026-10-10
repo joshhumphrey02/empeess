@@ -22,6 +22,7 @@ import { runAdminAction } from "@/server/admin/run-action";
 import { setCustomerRole, updateOrderStatus, type OrderStatus } from "@/server/admin/sales";
 import { addStaff, removeStaff, setStaffBanned, setStaffPermissions } from "@/server/admin/team";
 import { refundOrder } from "@/server/payments";
+import { saveSiteContent, type ContentChange } from "@/server/site-content";
 
 import type { ActionResult } from "@/server/admin/run-action";
 
@@ -177,4 +178,13 @@ export async function setStaffBannedAction(userId: string, banned: boolean) {
     await setStaffBanned(userId, banned, adminId);
     revalidatePath("/admin", "layout");
   }, banned ? "Banned. They've been signed out." : "Ban lifted.");
+}
+
+// ─── Site content ────────────────────────────────────────────────────────────
+
+export async function saveSiteContentAction(changes: Record<string, ContentChange>) {
+  return run("content", async () => {
+    await saveSiteContent(changes);
+    revalidatePath("/", "layout");
+  }, "Site content saved. It's live on the store now.");
 }

@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { gsap, SplitText, useGSAP } from "@/lib/gsap";
 
-import { footer, nav } from "./content";
+import { footer as defaults, nav } from "./content";
 import { BlurReveal } from "./primitives";
 
 const socials = [
@@ -60,7 +60,7 @@ function NewsletterForm() {
   );
 }
 
-export function SiteFooter() {
+export function SiteFooter({ content: footer = defaults }: { content?: typeof defaults }) {
   const root = useRef<HTMLElement>(null);
 
   // Giant wordmark letters rise into place as the footer scrolls in.

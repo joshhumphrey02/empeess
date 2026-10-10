@@ -7,12 +7,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { lookbook } from "./content";
+import { lookbook as defaults } from "./content";
 import { BlurReveal, Eyebrow, WordsReveal } from "./primitives";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function Lookbook() {
+export function Lookbook({ content: lookbook = defaults }: { content?: typeof defaults }) {
   const scroller = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const drag = useRef<{ x: number; left: number } | null>(null);

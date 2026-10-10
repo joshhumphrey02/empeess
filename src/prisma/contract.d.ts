@@ -34,9 +34,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6267fe6a7414542042bd9590ec3f75eaea38f99f85c01b0b96cc409fefca964a'>;
+  StorageHashBase<'8cbbe1056c0ec84ac90a65c9d72bfeae2631c7d7d87f3e8971c21402fd230657'>;
 export type ExecutionHash =
-  ExecutionHashBase<'43b9122f442b4b040e2586eedf21341365cfbf5b4eedcd566185e6071f3d90b7'>;
+  ExecutionHashBase<'33e0651f03e9269b29f6d190c33b546fdffacb09129a445b44d0c6c6fc57ff7d'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -435,6 +435,12 @@ export type FieldOutputTypes = {
       readonly userAgent: CodecTypes['pg/text@1']['output'] | null;
       readonly userId: CodecTypes['pg/text@1']['output'];
     };
+    readonly SiteContent: {
+      readonly arkId: CodecTypes['pg/text@1']['output'] | null;
+      readonly key: CodecTypes['pg/text@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly value: CodecTypes['pg/text@1']['output'];
+    };
     readonly User: {
       readonly avatarArkId: CodecTypes['pg/text@1']['output'] | null;
       readonly avatarUrl: CodecTypes['pg/text@1']['output'] | null;
@@ -652,6 +658,12 @@ export type FieldInputTypes = {
       readonly tokenHash: CodecTypes['pg/text@1']['input'];
       readonly userAgent: CodecTypes['pg/text@1']['input'] | null;
       readonly userId: CodecTypes['pg/text@1']['input'];
+    };
+    readonly SiteContent: {
+      readonly arkId: CodecTypes['pg/text@1']['input'] | null;
+      readonly key: CodecTypes['pg/text@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly value: CodecTypes['pg/text@1']['input'];
     };
     readonly User: {
       readonly avatarArkId: CodecTypes['pg/text@1']['input'] | null;
@@ -871,6 +883,12 @@ export type StorageColumnTypes = {
       readonly userAgent: CodecTypes['pg/text@1']['output'] | null;
       readonly userId: CodecTypes['pg/text@1']['output'];
     };
+    readonly SiteContent: {
+      readonly arkId: CodecTypes['pg/text@1']['output'] | null;
+      readonly key: CodecTypes['pg/text@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly value: CodecTypes['pg/text@1']['output'];
+    };
     readonly User: {
       readonly avatarArkId: CodecTypes['pg/text@1']['output'] | null;
       readonly avatarUrl: CodecTypes['pg/text@1']['output'] | null;
@@ -1088,6 +1106,12 @@ export type StorageColumnInputTypes = {
       readonly tokenHash: CodecTypes['pg/text@1']['input'];
       readonly userAgent: CodecTypes['pg/text@1']['input'] | null;
       readonly userId: CodecTypes['pg/text@1']['input'];
+    };
+    readonly SiteContent: {
+      readonly arkId: CodecTypes['pg/text@1']['input'] | null;
+      readonly key: CodecTypes['pg/text@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly value: CodecTypes['pg/text@1']['input'];
     };
     readonly User: {
       readonly avatarArkId: CodecTypes['pg/text@1']['input'] | null;
@@ -1348,6 +1372,13 @@ export namespace Models {
     user: public_User;
     readonly [RelationKeys]?: 'user';
   };
+  export type public_SiteContent = {
+    arkId: CodecTypes['pg/text@1']['output'] | null;
+    key: CodecTypes['pg/text@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    value: CodecTypes['pg/text@1']['output'];
+    readonly [RelationKeys]?: never;
+  };
   export type public_User = {
     avatarArkId: CodecTypes['pg/text@1']['output'] | null;
     avatarUrl: CodecTypes['pg/text@1']['output'] | null;
@@ -1409,6 +1440,7 @@ export declare const models: {
     ProductVariant: Models.public_ProductVariant;
     Review: Models.public_Review;
     Session: Models.public_Session;
+    SiteContent: Models.public_SiteContent;
     User: Models.public_User;
     VerificationToken: Models.public_VerificationToken;
     WishlistItem: Models.public_WishlistItem;
@@ -2753,6 +2785,34 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly SiteContent: {
+              columns: {
+                readonly arkId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly key: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly updatedAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                };
+                readonly value: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['key'] };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
             readonly User: {
               columns: {
                 readonly avatarArkId: {
@@ -3024,6 +3084,10 @@ type ContractBase = Omit<
     };
     readonly Review: { readonly namespace: 'public' & NamespaceId; readonly model: 'Review' };
     readonly Session: { readonly namespace: 'public' & NamespaceId; readonly model: 'Session' };
+    readonly SiteContent: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'SiteContent';
+    };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
     readonly VerificationToken: {
       readonly namespace: 'public' & NamespaceId;
@@ -4380,6 +4444,40 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly SiteContent: {
+            readonly fields: {
+              readonly arkId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly key: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly value: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'SiteContent';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly arkId: { readonly column: 'arkId' };
+                readonly key: { readonly column: 'key' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly value: { readonly column: 'value' };
+              };
+            };
+          };
           readonly User: {
             readonly fields: {
               readonly avatarArkId: {
@@ -4942,6 +5040,15 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'Session';
             readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'SiteContent';
+            readonly field: 'updatedAt';
             readonly namespace: 'public';
           };
         },

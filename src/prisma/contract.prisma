@@ -422,3 +422,15 @@ model ContactMessage {
 
   @@index([createdAt])
 }
+
+// Client-edited overrides for storefront copy and imagery (home page, footer
+// contact details). `key` is a path into the defaults in
+// src/components/landing/content.ts, e.g. "hero.blurb"; a missing row means
+// "use the default". `arkId` is set when `value` is an uploaded image.
+model SiteContent {
+  key       String             @id
+  value     String
+  arkId     String?
+
+  updatedAt temporal.updatedAtString()
+}

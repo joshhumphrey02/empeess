@@ -1,4 +1,6 @@
-// Static copy and imagery for the landing page.
+// Default copy and imagery for the landing page. The client can override the
+// fields listed in src/lib/site-content.ts from the dashboard (Site content);
+// anything they haven't changed comes from here.
 //
 // Every image here is a placeholder from Unsplash (free licence, no
 // attribution required). Swap them for product photography uploaded to Ark
@@ -39,6 +41,7 @@ export const nav = {
 };
 
 export const hero = {
+  src: images.heroModel,
   imageAlt: "Model in a cream hoodie and sunglasses",
   lineA: ["where", "- style"],
   lineB: ["lives", "- now"],

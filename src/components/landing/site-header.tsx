@@ -20,7 +20,7 @@ import { BrandLogo } from "@/components/brand";
 import { SearchOverlay } from "@/components/store/search-overlay";
 import { cn } from "@/lib/utils";
 
-import { hero, images, nav } from "./content";
+import { hero, nav } from "./content";
 import { ChamferImage } from "./primitives";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -62,11 +62,14 @@ export function SiteHeader({
   cartCount = 0,
   signedIn = false,
   solid = false,
+  menuImage = { src: hero.src, alt: hero.imageAlt },
 }: {
   cartCount?: number;
   signedIn?: boolean;
   /** Store pages: keep the frosted bar visible from the top. */
   solid?: boolean;
+  /** Photo shown in the open menu; defaults to the hero photo. */
+  menuImage?: { src: string; alt: string };
 }) {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
@@ -202,8 +205,8 @@ export function SiteHeader({
                 transition={{ duration: 0.8, ease, delay: 0.4 }}
               >
                 <ChamferImage
-                  src={images.heroModel}
-                  alt={hero.imageAlt}
+                  src={menuImage.src}
+                  alt={menuImage.alt}
                   className="aspect-3/4 w-full"
                   sizes="380px"
                 />

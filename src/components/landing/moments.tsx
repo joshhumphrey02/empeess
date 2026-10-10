@@ -4,10 +4,10 @@ import { motion, useScroll, useTransform } from "motion/react";
 import Image from "next/image";
 import { useRef } from "react";
 
-import { moments } from "./content";
+import { moments as defaults } from "./content";
 import { BlurReveal, ChamferImage, Flower, PillLink, WordsReveal } from "./primitives";
 
-export function Moments() {
+export function Moments({ content: moments = defaults }: { content?: typeof defaults }) {
   const root = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: root,

@@ -8,6 +8,7 @@ import {
   IconMailCheck,
   IconMessage,
   IconPackages,
+  IconPhotoEdit,
   IconReceipt,
   IconStar,
   IconUsers,
@@ -71,7 +72,10 @@ const groups: { label: string; items: NavItem[] }[] = [
   },
   {
     label: "Settings",
-    items: [{ href: "/admin/team", label: "Team", icon: IconUsersGroup, needs: "admin" }],
+    items: [
+      { href: "/admin/content", label: "Site content", icon: IconPhotoEdit, needs: "content" },
+      { href: "/admin/team", label: "Team", icon: IconUsersGroup, needs: "admin" },
+    ],
   },
 ];
 

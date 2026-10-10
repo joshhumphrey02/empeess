@@ -1,17 +1,17 @@
 import { IconClock, IconMail, IconMapPin, IconPhone } from "@tabler/icons-react";
 import type { Metadata } from "next";
 
-import { footer } from "@/components/landing/content";
 import { ContactForm } from "@/components/store/contact-form";
 import { InfoPage } from "@/components/store/info-page";
 import { getCurrentUser } from "@/server/auth/session";
+import { getSiteContent } from "@/server/site-content";
 
 export const metadata: Metadata = { title: "Contact | EMPEESS" };
 
 const ICONS: Record<string, typeof IconMail> = { LOCATION: IconMapPin, "CALL US": IconPhone, EMAIL: IconMail, "OPEN TIME": IconClock };
 
 export default async function ContactPage() {
-  const user = await getCurrentUser();
+  const [user, { footer }] = await Promise.all([getCurrentUser(), getSiteContent()]);
   return (
     <InfoPage eyebrow="[Contact]" title="Get in touch" description="Questions about an order, sizing or returns? Send us a message." current="/contact">
       <ul className="grid gap-3 sm:grid-cols-2">

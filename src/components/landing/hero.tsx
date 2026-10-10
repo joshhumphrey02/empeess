@@ -7,7 +7,7 @@ import { useRef } from "react";
 
 import { gsap, SplitText, useGSAP } from "@/lib/gsap";
 
-import { hero, images } from "./content";
+import { hero as defaults, images } from "./content";
 import { Flower } from "./primitives";
 
 function HeadlineLine({ text, className }: { text: string; className?: string }) {
@@ -21,7 +21,7 @@ function HeadlineLine({ text, className }: { text: string; className?: string })
   );
 }
 
-export function Hero() {
+export function Hero({ content: hero = defaults }: { content?: typeof defaults }) {
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -162,7 +162,7 @@ export function Hero() {
             style={{ clipPath: "inset(100% 0% 0% 0%)" }}
           >
             <Image
-              src={images.heroModel}
+              src={hero.src}
               alt={hero.imageAlt}
               fill
               preload

@@ -7,13 +7,13 @@ import { useRef, useState } from "react";
 
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
-import { categories } from "./content";
+import { categories as defaults } from "./content";
 import { BlurReveal, Eyebrow, PillLink } from "./primitives";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-const items = categories.items;
 
-export function Categories() {
+export function Categories({ content: categories = defaults }: { content?: typeof defaults }) {
+  const items = categories.items;
   const root = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
   const current = items[active];
@@ -40,7 +40,7 @@ export function Categories() {
         return () => st.kill();
       });
     },
-    { scope: root },
+    { scope: root, dependencies: [items.length] },
   );
 
   return (

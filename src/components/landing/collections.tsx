@@ -7,12 +7,12 @@ import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { collections } from "./content";
+import { collections as defaults } from "./content";
 import { BlurReveal, PillLink } from "./primitives";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function Collections() {
+export function Collections({ content: collections = defaults }: { content?: typeof defaults }) {
   const [open, setOpen] = useState(0);
   const current = collections.items[open];
 
